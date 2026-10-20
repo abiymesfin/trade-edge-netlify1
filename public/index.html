@@ -426,6 +426,8 @@
     };
 
     var start = function(){
+      var openPayment = false; try{ openPayment = new URLSearchParams(location.search).get('open') === 'payment'; }catch(e){}
+      if(openPayment){ setTimeout(function(){ try{ showPlans(); }catch(e){} }, 160); }
       // inside Telegram the signed Telegram login is added by the wrapped fetch above
       (hasTg ? window.fetch("/api/session") : original("/api/session"))
         .then(function(r){ return r.json().then(function(j){ return { ok:r.ok, status:r.status, j:j }; }); })
@@ -2997,6 +2999,24 @@ html[data-theme="light"] .te-theme-btn .ico-moon{display:none}
     apply(get());
   })();
   </script>
+<style id="te-v2-ui">
+/* Trade Edge interaction refresh: tactile mobile dock and restrained desktop hover */
+@media(hover:hover) and (pointer:fine){
+  .nav-link,.mobile-nav-link,.te-theme-btn,.te-logout{transition:transform .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease!important}
+  .nav-link:hover{transform:translateY(-2px)}
+  .mobile-nav-link:hover{transform:translateY(-3px);color:#fff!important;background:rgba(255,122,51,.14)!important}
+  .model-card:hover,.trade-card:hover,.pair-card:hover{transform:translateY(-4px);box-shadow:0 18px 36px rgba(0,0,0,.16)}
+}
+.mobile-nav-link:focus-visible,.nav-link:focus-visible{outline:2px solid #ff8a3d;outline-offset:3px}
+@media(max-width:700px){
+  .mobile-nav{left:9px!important;right:9px!important;bottom:calc(9px + env(safe-area-inset-bottom,0px))!important;border-radius:22px!important;padding:6px!important}
+  .mobile-nav-inner{display:grid!important;grid-template-columns:repeat(5,1fr);gap:4px!important}
+  .mobile-nav-link{min-height:58px!important;padding:6px 3px!important;border-radius:16px!important;justify-content:center;position:relative;overflow:hidden}
+  .mobile-nav-link:after{content:"";position:absolute;left:50%;bottom:4px;width:0;height:3px;border-radius:99px;background:#ff9a62;transform:translateX(-50%);transition:width .2s ease}
+  .mobile-nav-link.active:after{width:22px}.mobile-nav-icon{width:25px!important;height:25px!important}.mobile-nav-link span:last-child{font-size:10px!important;line-height:1.1}
+}
+@media(max-width:380px){.mobile-nav-link{min-height:54px!important}.mobile-nav-icon{width:22px!important;height:22px!important}.mobile-nav-link span:last-child{font-size:9px!important}}
+</style>
 </head>
 
 <body>

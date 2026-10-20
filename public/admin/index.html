@@ -36,6 +36,24 @@ html[data-admin-theme="light"] .tea-sidebar{background:rgba(255,255,255,.58);bor
 @media(max-width:760px){.tea-layout{display:block}.tea-sidebar{position:sticky;top:52px;z-index:20;background:transparent;border:0!important;border-radius:0!important;padding:0!important;box-shadow:none!important}.tea-sidebar-label{display:none}.tea-sidebar .tea-tabs{display:flex;flex-direction:row;overflow:auto;padding:4px 0 14px;background:rgba(248,250,252,.88);backdrop-filter:blur(12px)}.tea-sidebar .tea-tab{justify-content:center;text-align:center}.tea-sidebar .tea-tab-icon{width:auto}.tea-layout>main{padding-top:2px}}
 
 .tea-plan-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-top:8px}.tea-plan-card b{display:block}.tea-plan-card span:not(.tea-badge){display:block;margin-top:4px;font-size:11px;color:var(--soft)}
+
+/* Interaction polish: hover on pointer devices, press states on touch devices */
+@media(hover:hover) and (pointer:fine){
+  .tea-section,.tea-stat,.tea-plan-card{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+  .tea-section:hover{border-color:rgba(255,91,141,.34);box-shadow:0 20px 48px rgba(34,52,84,.13)}
+  .tea-stat:hover,.tea-plan-card:hover{transform:translateY(-3px);border-color:rgba(255,91,141,.38);box-shadow:0 18px 34px rgba(34,52,84,.13)}
+  .tea-tab:hover{transform:translateX(3px)}
+  .tea-btn.primary:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 14px 30px rgba(255,47,109,.28)}
+  .tea-row:hover{background:linear-gradient(90deg,rgba(255,91,141,.045),transparent);border-radius:10px}
+}
+.tea-btn,.tea-tab,.tea-plan-card,.tea-row{transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease}
+@media(max-width:760px){
+  .tea-top{padding-bottom:8px}.tea-brand{gap:8px}.tea-logo-wrap{width:36px;height:36px;border-radius:11px}.tea-actions{gap:5px}.theme-toggle{min-width:0!important;padding:8px 9px!important}
+  .tea-layout{margin-left:-10px;margin-right:-10px}.tea-layout>main{padding:0 10px 40px}.tea-sidebar .tea-tabs{padding:7px 10px 9px;gap:6px;border-top:1px solid rgba(127,143,165,.14);border-bottom:1px solid rgba(127,143,165,.14);box-shadow:0 8px 22px rgba(34,52,84,.06)}
+  .tea-sidebar .tea-tab{min-height:43px;padding:8px 12px;border-radius:13px;font-size:11px;flex:0 0 auto}.tea-sidebar .tea-tab.active{box-shadow:0 7px 18px rgba(255,47,109,.16)}
+  .tea-hero{margin-top:7px}.tea-section{border-radius:16px;padding:13px}.tea-section-head{align-items:flex-start}.tea-row{padding:14px 4px}.tea-actions-cell{gap:7px}.tea-actions-cell .tea-btn{min-height:36px}
+}
+
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -117,7 +135,7 @@ html[data-admin-theme="light"] .tea-sidebar{background:rgba(255,255,255,.58);bor
     });
   }
   function onRootClick(e){
-    if(e.target&&e.target.id==='openPlanWebsite'){const u=(data&&data.siteUrl)||(location.origin+'/');try{tg.openLink(u)}catch(x){location.href=u};return;}
+    if(e.target&&e.target.id==='openPlanWebsite'){let u=(data&&data.siteUrl)||(location.origin+'/');u+=(u.indexOf('?')>=0?'&':'?')+'open=payment';try{tg.openLink(u)}catch(x){location.href=u};return;}
     const tb=e.target.closest('[data-tab]');
     if(tb){e.preventDefault();tab=tb.dataset.tab;query='';renderContent();return;}
     const ab=e.target.closest('[data-admin-action]');
