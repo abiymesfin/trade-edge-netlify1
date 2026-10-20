@@ -42,3 +42,5 @@ ADMIN MINI APP
 
 
 V28: PLANS EDITOR - in Telegram send /editplans (or the menu button "Plans & prices") to change prices, plan names, days, notes, the services list on the Plans page, free-trial days and how-to-pay text. No redeploy needed.
+
+Deployment source: GitHub main branch connected to Netlify.
