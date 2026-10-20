@@ -239,7 +239,8 @@
       card.appendChild(mk("div", "Account created · አካውንት ተፈጥሯል", "font-size:28px;line-height:1.15;font-weight:600;color:#fff;margin:16px 0 18px"));
       card.appendChild(mk("div", "Your website login is ready. Connect it to Telegram without typing your email or password again.\n\nየድረ-ገጽ አካውንትዎ ተዘጋጅቷል። ኢሜልና ፓስዎርድ እንደገና ሳይጽፉ ከTelegram ጋር ያገናኙት።", S.note));
       var a=mk("a", "Connect Telegram · Telegram አገናኝ", S.btn+";display:block;box-sizing:border-box;text-decoration:none;text-align:center");
-      a.href="https://t.me/"+link.botUsername+"?start=link_"+encodeURIComponent(link.token); a.target="_blank"; a.rel="noopener"; card.appendChild(a);
+      var telegramUrl="https://t.me/"+link.botUsername+"?start=link_"+encodeURIComponent(link.token); a.href=telegramUrl; a.target="_blank"; a.rel="noopener"; card.appendChild(a);
+      setTimeout(function(){ try { if(window.Telegram && Telegram.WebApp && Telegram.WebApp.openTelegramLink) Telegram.WebApp.openTelegramLink(telegramUrl); else window.open(telegramUrl,"_blank","noopener"); } catch(e){} }, 350);
       card.appendChild(mk("div", "The link expires in 15 minutes and can be used once. · ሊንኩ በ15 ደቂቃ ውስጥ አንድ ጊዜ ብቻ ይሰራል።", S.sub));
       var later=mk("button", "Continue to website · ወደ ድረ-ገጹ ቀጥል", S.link); later.onclick=function(){ location.reload(); }; card.appendChild(later);
     };
@@ -318,20 +319,25 @@
         });
         card.appendChild(mk("div", d.payInfo || "Choose the payment route for your location. · እንደ አካባቢዎ የክፍያ መንገድ ይምረጡ።", S.note));
         var method = document.createElement("select"); method.style.cssText = S.input; method.setAttribute("aria-label", "Payment method");
-        (d.paymentMethods || PAYMENT_METHODS || []).forEach(function(m){ var o=document.createElement("option"); o.value=m.id; o.textContent=(m.region === "et" ? "Ethiopia · " : "International · ") + m.name; o.dataset.instructions=m.instructions||""; method.appendChild(o); });
+        (d.paymentMethods || PAYMENT_METHODS || []).forEach(function(m){ var o=document.createElement("option"); o.value=m.id; o.textContent=(m.region === "et" ? "Ethiopia · " : "International · ") + m.name; o.dataset.instructions=m.instructions||""; o.dataset.account=m.account||""; o.dataset.type=m.accountType||""; method.appendChild(o); });
         card.appendChild(method);
         var methodNote = mk("div", "", S.note); card.appendChild(methodNote);
         var network = field(card, "text", "Crypto network (e.g. TRC20, ERC20) · ክሪፕቶ ኔትወርክ", "off"); network.style.display="none";
+        var phone = field(card, "tel", "Phone number used for payment · የክፍያ ስልክ ቁጥር", "off");
+        var payerAccount = field(card, "text", "Your paying account / wallet · የከፋይ አካውንት", "off");
         var ref = field(card, "text", "Payment reference / transaction ID · የክፍያ ማስረጃ", "off");
+        var shotLabel = mk("label", "Payment screenshot (optional) · የክፍያ ስክሪንሻት (አማራጭ)", "display:block;text-align:left;font-size:12px;color:#a3a3ae;margin:12px 0 6px");
+        var shot = document.createElement("input"); shot.type="file"; shot.name="screenshot"; shot.accept="image/jpeg,image/png,image/webp,image/gif"; shot.style.cssText=S.input+";padding:10px"; shotLabel.appendChild(shot); card.appendChild(shotLabel);
         var err = mk("div", "", S.err);
-        var syncMethod = function(){ var o=method.options[method.selectedIndex]; methodNote.textContent=o?o.dataset.instructions:""; network.style.display=(method.value==="crypto"?"block":"none"); };
+        var syncMethod = function(){ var o=method.options[method.selectedIndex]; methodNote.textContent=o?((o.dataset.type?o.dataset.type+" · ":"")+(o.dataset.account?o.dataset.account+" · ":"")+o.dataset.instructions):""; network.style.display=(method.value==="crypto"?"block":"none"); };
         method.onchange=syncMethod; syncMethod();
         card.appendChild(err);
         var btn = mk("button", d.pending ? "Send again · እንደገና ላክ" : "I have paid · ከፍያለሁ", S.btn);
         card.appendChild(btn);
         btn.onclick = function(){
           btn.disabled = true; err.textContent = "";
-          post("/api/subscribe", { planId:chosen, methodId:method.value, network:network.value, reference:ref.value })
+          var fd = new FormData(); fd.append("planId", chosen); fd.append("methodId", method.value); fd.append("network", network.value); fd.append("payerPhone", phone.value); fd.append("payerAccount", payerAccount.value); fd.append("reference", ref.value); if(shot.files[0]) fd.append("screenshot", shot.files[0]);
+          fetch("/api/subscribe", {method:"POST", body:fd}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
             .then(function(x){
               if(x.ok){ location.reload(); return; }
               err.textContent = (x.j && x.j.error) || "Something went wrong";

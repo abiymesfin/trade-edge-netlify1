@@ -411,17 +411,23 @@ async function subscribe(req, user) {
   const methodId = String(body.methodId || '').trim();
   const method = (db.paymentMethods || []).find(x => x.id === methodId);
   const reference = String(body.reference || '').trim().slice(0, 120);
+  const payerPhone = String(body.payerPhone || '').trim().slice(0, 40);
+  const payerAccount = String(body.payerAccount || '').trim().slice(0, 160);
+  const screenshot = filesNamed(files, 'screenshot')[0];
+  const screenshotUrl = screenshot ? saveUpload(screenshot) : '';
   const network = String(body.network || '').trim().slice(0, 40);
   if (!plan) return bad('Choose a plan');
   if (!method) return bad('Choose a payment method');
   if (!reference) return bad('Enter your payment reference or transaction ID');
+  if (!payerPhone) return bad('Enter the phone number used for payment');
+  if (!payerAccount) return bad('Enter the paying account or wallet');
   if (method.region === 'intl' && method.id === 'crypto' && !network) return bad('Enter the crypto network used');
   db.payments = db.payments.filter(p => !(p.userId === user.id && p.status === 'pending'));
-  const pay = { id: newId(), userId: user.id, planId: plan.id, methodId: method.id, methodName: method.name, network, reference, createdAt: new Date().toISOString(), status: 'pending' };
+  const pay = { id: newId(), userId: user.id, planId: plan.id, methodId: method.id, methodName: method.name, network, payerPhone, payerAccount, screenshot: screenshotUrl, reference, createdAt: new Date().toISOString(), status: 'pending' };
   db.payments.push(pay);
   save();
   await notifyOwner(
-    `💳 Payment request\n${user.name} (${user.email})\nPlan: ${plan.name} – ${plan.days} days ${plan.price || ''}\nMethod: ${method.name}${network ? ' (' + network + ')' : ''}\nReference/TxID: ${reference}`,
+    `💳 Payment request\n${user.name} (${user.email})\nPlan: ${plan.name} – ${plan.days} days ${plan.price || ''}\nMethod: ${method.name}${network ? ' (' + network + ')' : ''}\nPhone: ${payerPhone}\nPaying account: ${payerAccount}\nReference/TxID: ${reference}${screenshotUrl ? '\nScreenshot attached' : ''}`,
     { reply_markup: new InlineKeyboard().text('✅ Approve', 'pay:ok:' + pay.id).text('❌ Reject', 'pay:no:' + pay.id) }
   );
   return json({ ok: true });
@@ -1185,7 +1191,7 @@ function adminSnapshot() {
     const u = db.users.find(x => x.id === p.userId);
     const plan = db.plans.find(x => x.id === p.planId);
     return { id:p.id, userId:p.userId, userName:u?.name||'', userEmail:u?.email||'', planId:p.planId,
-      planName:plan?.name||'', days:plan?.days||0, price:plan?.price||'', methodName:p.methodName||p.methodId||'', network:p.network||'', reference:p.reference||'', createdAt:p.createdAt, status:p.status||'pending' };
+      planName:plan?.name||'', days:plan?.days||0, price:plan?.price||'', methodName:p.methodName||p.methodId||'', network:p.network||'', payerPhone:p.payerPhone||'', payerAccount:p.payerAccount||'', screenshot:p.screenshot||'', reference:p.reference||'', createdAt:p.createdAt, status:p.status||'pending' };
   });
   const accounts = db.accounts.map(a => ({...a, pnl: accountPnl(a.id), balance: Number(a.startingBalance||0) + accountPnl(a.id)}));
   const models = db.models.map(m => ({...m}));
