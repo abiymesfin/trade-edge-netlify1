@@ -1,0 +1,29 @@
+functionsDirectory = "C:\\Users\\kidist\\Documents\\New folder (7)\\netlify\\functions"
+functionsDirectoryOrigin = "config"
+plugins = []
+headers = []
+redirects = []
+
+[build]
+publish = "C:\\Users\\kidist\\Documents\\New folder (7)\\public"
+publishOrigin = "config"
+functions = "C:\\Users\\kidist\\Documents\\New folder (7)\\netlify\\functions"
+
+  [build.environment]
+
+  [build.processing]
+
+    [build.processing.css]
+
+    [build.processing.html]
+
+    [build.processing.images]
+
+    [build.processing.js]
+
+  [build.services]
+
+[functions]
+
+  [functions."*"]
+  node_bundler = "esbuild"
