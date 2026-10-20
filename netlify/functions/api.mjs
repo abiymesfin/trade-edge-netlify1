@@ -122,9 +122,9 @@ const emptyDb = () => ({
   hideFromViewers: false,                           // control panel switch: subscribers do not see ETB amounts, notes and screenshots
   payInfo: '',                                      // legacy/general payment instructions
   paymentMethods: [
-    { id: 'bank', region: 'et', name: 'Ethiopian bank transfer', instructions: 'Add your Ethiopian bank name and account details in the admin panel.' },
-    { id: 'telebirr', region: 'et', name: 'Telebirr', instructions: 'Add your Telebirr number and payment instructions in the admin panel.' },
-    { id: 'crypto', region: 'intl', name: 'Cryptocurrency', instructions: 'Add your wallet address, network and accepted coins in the admin panel.' }
+    { id: 'bank', region: 'et', accountType: 'Bank transfer', name: 'Ethiopian bank transfer', account: '', instructions: 'Add your Ethiopian bank name and account details in the admin panel.' },
+    { id: 'telebirr', region: 'et', accountType: 'Mobile wallet', name: 'Telebirr', account: '', instructions: 'Add your Telebirr number and payment instructions in the admin panel.' },
+    { id: 'crypto', region: 'intl', accountType: 'Crypto wallet', name: 'Cryptocurrency', account: '', instructions: 'Add your wallet address, network and accepted coins in the admin panel.' }
   ],
   linkTokens: {},                                  // one-time Telegram deep-link tokens
   features: null,                                   // services listed on every plan (null = built-in list); edited in the bot: Plans & prices
@@ -1363,7 +1363,9 @@ async function adminAction(req, body) {
       db.paymentMethods = methods.map((m, i) => ({
         id: String(m.id || ('method-' + i)).trim().slice(0,40),
         region: m.region === 'intl' ? 'intl' : 'et',
+        accountType: String(m.accountType || 'Other').trim().slice(0,60),
         name: String(m.name || '').trim().slice(0,80),
+        account: String(m.account || '').trim().slice(0,500),
         instructions: String(m.instructions || '').trim().slice(0,1000)
       })).filter(m => m.name && m.instructions);
       if (!db.paymentMethods.length) return bad('Payment method name and instructions are required');
