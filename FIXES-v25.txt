@@ -1,0 +1,2 @@
+V25 - CONTROL PANEL TRADES TAB: ACCOUNT SELECTOR (only this changed)
+  admin/index.html  Trades tab has an account selector next to the search box (All accounts + each account) that filters the trades.

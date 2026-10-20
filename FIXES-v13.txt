@@ -1,0 +1,6 @@
+v13: Professional separate Super Admin Control Panel UI.
+- CSS moved into <head> so rendering the body cannot remove styles.
+- Mobile-first dark admin dashboard for Telegram Mini App.
+- Improved navigation, metrics, sections, modals, forms and error states.
+- Existing API routes and management actions preserved.
+- Main public website unchanged.

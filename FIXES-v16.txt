@@ -1,0 +1,25 @@
+TRADE EDGE v16 - control panel + website data fixed (tested in a real browser with a simulated Telegram)
+
+CONTROL PANEL (public/admin/index.html)
+1. ROOT CAUSE of "nothing works": the tab buttons (Accounts, Models, Trades ...) had no click handler,
+   so only Overview ever showed. One click listener now serves every tab/button/modal.
+2. Active tab highlight now follows the selected tab.
+3. Add trade: LOSS trades were rejected (amount was sent positive) -> now signed correctly (also ETB).
+4. Edit trade: the date/time shifted by 3 hours on every save -> fixed (local time shown and saved).
+5. Trades now keep the model name; defaults: psychology=normal, followed plan=yes; disabled trades stay disabled when edited.
+6. New: screenshots (any number) can be added to a trade; tap a picture to see it large.
+   Pictures now load inside the panel (they were blocked because the Telegram header was missing).
+7. New: model picture upload; Enable/Disable buttons for accounts and trades; Active/Disabled badges.
+8. New: "Create login" button for the owner website login (there was none until one existed).
+9. New pairs default to "Trading this week = Yes".
+10. New: "Subscriber privacy" switch on Overview.
+11. "Website" button works even before /api/setup (falls back to this site).
+
+WEBSITE DATA (netlify/functions/api.mjs)
+12. ROOT CAUSE of "no data on the website": the server returned EMPTY accounts/models/journal to every website login
+    (subscribers AND your own owner login). Now paid subscribers and the owner login receive the data.
+13. Privacy switch (control panel): ON = subscribers do not get ETB amounts, notes and screenshots. Default OFF.
+14. Screenshot files: opened only by an active subscriber / owner login, and no longer cached publicly.
+15. Trades created from the panel store the model name (so the website shows it).
+
+Deploy: double-click 2-deploy.bat. No need to run /api/setup again.

@@ -1,0 +1,36 @@
+TRADE EDGE v18
+
+1) PROFESSIONAL PAIR ANALYSIS (netlify/functions/analysis-engine.mjs + api.mjs)
+   Each pair is now analysed from many sources instead of two:
+   - Yahoo Finance: daily (1y) AND weekly (2y) candles -> trend (SMA 20/50/200), Wilder RSI14, MACD,
+     ATR, market structure (HH/HL, LH/LL), swing support/resistance, last-week high/low,
+     weekly pivot points, expected weekly range.
+   - Other markets: US Dollar Index, US 10Y yield, S&P 500, VIX -> effect on the pair.
+   - Forex Factory calendar: high/medium events for both currencies of the pair.
+   - News sites (RSS): ForexLive, FXStreet (news + analysis), Investing.com, FXEmpire ->
+     related headlines + positive/negative tone for each currency.
+   - CFTC COT report: net position of large speculators (weekly).
+   - Your own buyer/seller % from the bot (read as the crowd = contrarian).
+   Result per pair: Bullish / Bearish / Neutral bias, score (-100..+100), confidence,
+   key levels, bullish + bearish scenario, warnings (overbought, big news close,
+   technical vs news conflict, crowded trade) and a "how the score is built" breakdown.
+   Website (Analysis page): new card, fully in English and Amharic (AM/EN switch).
+   Telegram Monday plan: now includes the summary, sources, and the details.
+   If one source is down, the others still work; the last good technicals are kept.
+   Pairs saved before v18 are rebuilt automatically the first time you open Analysis in the app
+   (or press "Refresh all" in the control panel / send /refreshplan).
+
+2) JOURNAL NOTES IN BOTH LANGUAGES (api.mjs + public/index.html)
+   Write the notes in Amharic OR English (website, bot or control panel). The server detects the language,
+   translates into the other one and stores both. The website shows the notes in the language
+   selected with the AM/EN switch (list, detail window). Search works in both languages.
+   Old trades with notes are translated automatically (a few per call) the first time the owner opens the app.
+   If the translation service is unreachable the original text is shown and it retries later.
+   The edit form always shows the text exactly as you typed it.
+
+Deploy: double-click 2-deploy.bat. No need to run /api/setup again.
+
+3) JOURNAL PAGE NOT SHOWING NEW TRADES (public/index.html)
+   Trades added from the Telegram control panel / bot did not appear on the Journal page until the
+   website was reloaded (data was read only once when the app opened). Now the data is re-read
+   when you open a page, when you return to the app, and every minute while it is open.

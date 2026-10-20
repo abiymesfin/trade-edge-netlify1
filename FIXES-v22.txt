@@ -1,0 +1,13 @@
+V22 - MEMBERS CAN ADD DATA IN THE CONTROL PANEL (inside Telegram) + SAFETY GUARD
+  Control panel (members, in Telegram)  Tabs: Overview · Pairs & Analysis · Accounts · Models · Trades · Analysis by model.
+      Members can now ADD / EDIT / DELETE / enable-disable their OWN pairs, accounts, models and trades, mark the pairs
+      they will trade this week, and refresh the web analysis. Same forms as the owner's panel.
+  Chrome            The website in Chrome stays look-only (adding data only works inside Telegram).
+  api.mjs           - /api/admin POST is open to members ONLY inside Telegram and ONLY for the pair actions
+                      (MEMBER_ADMIN_ACTIONS: pair.save / pair.delete / pair.toggle / pair.refresh / pairs.refreshAll).
+                      Every other owner action (subscribers, payments, plans, gifts, reminder ...) still returns 403.
+                    - memberSnapshot() now returns the member's full accounts / models / trades / pairs (needed by the forms).
+                    - SAFETY NET in api(): if a member request is ever NOT running on the member's own lists, it stops
+                      with an error instead of answering from the owner's accounts / models / trades / pairs.
+  admin/index.html  memberMode uses the same tab views as the owner for pairs / accounts / models / trades.
+  After deploying: nothing to set up. Close and reopen the control panel in Telegram.

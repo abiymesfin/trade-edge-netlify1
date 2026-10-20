@@ -1,0 +1,6 @@
+v14 requested admin fixes
+- Fixed +Add/Edit/Delete controls using stable document-level event delegation, so controls survive content re-renders and work reliably on touch devices.
+- Added touch-safe hover/active behavior.
+- Added Website Access tab: add/edit subscriber email, password, contact, and blocked status; edit owner website credentials. Password hashes never leave the server.
+- Added Gifts tab: grant complimentary access to existing or new recipients, choose plan/duration, add note, and revoke.
+- Added backend user.save, owner.credentials, gift.create, gift.revoke actions and gift history.

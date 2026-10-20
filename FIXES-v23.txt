@@ -1,0 +1,7 @@
+V23 - CONTROL PANEL TRADE FORM: SELECT ACCOUNTS + CHOOSE THE FRONT PICTURE (only this changed)
+  admin/index.html  Add trade: "Account" dropdown -> tick boxes (select one or more accounts). The same trade is saved on each
+                    selected account (percent is computed per account). Edit trade keeps the single account dropdown.
+                    Pictures: after choosing screenshots, small numbered thumbnails appear; pick "Front" under the one
+                    that must be shown first. When editing a trade the old pictures are in the same list.
+  api.mjs           Only the trade pictures route: POST /api/journal/<id>/images accepts an optional "cover" field
+                    (position of the picture to move to the front).

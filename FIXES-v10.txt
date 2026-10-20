@@ -1,0 +1,7 @@
+Trade Edge v10
+
+Runtime/deployment reliability fix based on the live Netlify error:
+- Fixed the write lock to serialize JSON with Netlify Blobs setJSON instead of passing a JavaScript object to set().
+- Added safe text parsing and one-time cleanup for the malformed legacy lock value that caused `[object Object] is not valid JSON`.
+- Updated @netlify/blobs to 10.7.12, which includes current conditional-write fixes.
+- No UI, routes, trading rules, bot commands, or data model behavior was intentionally changed.

@@ -1,0 +1,59 @@
+TRADE EDGE (Netlify version) - CODE GUIDE (v18)
+
+public/index.html                 The website / Telegram Mini App (design and all pages).
+                                  The top <script> ("Telegram Mini App bridge") also holds the Chrome
+                                  sign-up / sign-in / subscription screens and the look-only mode.
+netlify/functions/api.mjs         The whole backend + Telegram bot:
+   - STATE                        data is kept in Netlify Blobs (db, flow, pictures)
+   - WEBSITE ACCOUNTS + SUBSCRIPTIONS   sign-up, login, payment requests, who may look
+   - RECORD RULES                 what a valid account / model / trade is
+   - WEBSITE API                  /api/... (Telegram owner = full access, subscribers = look only)
+   - FLOWS                        the bot's step-by-step questions (account, model, pair, trade).
+                                  To add/remove a question, edit the "steps" list of that flow.
+   - subscribers & payments       the bot screens for people and payments
+   - Monday reminder              buildPlan() writes the Monday message
+netlify/functions/analysis-engine.mjs   Pure analysis maths (indicators, levels, news tone, COT, scoring).
+                                  api.mjs downloads the data and calls it. Change weights in WEIGHTS there.
+netlify/functions/monday.mjs      Runs every hour; sends the Monday plan once per week.
+netlify.toml                      Netlify settings
+1-install-and-login.bat           first time only
+2-deploy.bat                      publish / update the site (run after every change)
+Environment variables             BOT_TOKEN, OWNER_ID and SETUP_KEY are configured only in the Netlify Dashboard
+
+Bot commands
+  /start /menu /cancel
+  /password you@mail.com Secret123     your own website login (no subscription needed)
+  /plans                               show plans + payment text
+  /addplan Monthly | 30 | 500 ETB      add a plan
+  /delplan 2                           remove plan number 2
+  /payinfo Telebirr 09...              text subscribers see when they pay
+  /grant email@x.com 30                give someone 30 days manually
+  /reminder  (6 = hour, tz 3 = time zone, on/off, test)
+
+HOW SUBSCRIBING WORKS
+  1. Someone signs up on the website  -> you get a Telegram message.
+  2. They choose a plan, pay you (Telebirr / bank ...), and send the payment reference on the site.
+  3. You get a message with [Approve] [Reject]. Approve = access for the plan's days.
+  4. When the days run out they see "Subscription expired" and must pay again.
+  Subscribers can only LOOK (dashboard, accounts, models, journal, analysis).
+
+To change something: send this zip (or the file) to Claude, describe the change,
+replace the file, then double-click 2-deploy.bat.
+
+Security note: BOT_TOKEN is never stored in this ZIP. Revoke any previously exposed token in BotFather and put the replacement only in Netlify Environment variables.
+
+V20 - PLANS, MEMBERS WITH THEIR OWN JOURNAL, FREE TRIAL, PROMO CODES, NEW LOOK
+  Look           index.html: the dark + orange "glass" theme is ONE block at the end of the main <style>
+                 (between TE-THEME-START and TE-THEME-END). Delete that block = the old white look. Layout is unchanged.
+                 The sign in / plans screens are built in the top <script> (colours are inline there).
+  Website        Sign up = name + e-mail + password (+ promo code). Starts the free trial. Sign in = e-mail + password.
+                 No Telegram button on those pages. In Chrome a member sees their own data, look-only.
+  Telegram bot   Anyone who opens the bot gets their own journal + 3 free days. They add their own accounts, models,
+                 trades and analysis. To join an existing website account: /login you@mail.com Password
+                 (message deleted at once). Members: /start /menu /cancel /plans /promo CODE /login /plan.
+  Own data       Each member sees ONLY their own data (enterScope/leaveScope in api.mjs). Owner tools are owner-only.
+  Plans          1/3/6/12 months. Price = months x PRICE_PER_MONTH (1500 ETB) near the top of api.mjs. TRIAL_DAYS = 3.
+  Promo codes    Owner: /gift 12 | /gift 3 5 | /gift 7d | /gifts, menu button, or Control Panel -> Gifts.
+                 Member: /promo TE-XXXX-XXXX, the sign-up box, or the pay screen. A code replaces the free trial.
+  Monday plan    Every Monday each active member also gets THEIR OWN plan; /plan = any time.
+  After updating: open /api/setup once more (menu buttons: members -> app, owner -> Control Panel).

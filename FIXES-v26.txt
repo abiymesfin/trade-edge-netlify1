@@ -1,0 +1,4 @@
+V26 - JOURNAL "ADD TRADE" FORM (main app / Telegram): SELECT SEVERAL ACCOUNTS (only this changed)
+  index.html  Journal > Add Trade: the Account dropdown became tick boxes (one or more accounts). The same trade is saved
+              on each ticked account (the server works out the % per account); screenshots are uploaded to each trade.
+              Edit trade keeps the single account dropdown. Nothing else changed.

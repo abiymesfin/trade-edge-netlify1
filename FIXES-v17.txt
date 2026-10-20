@@ -1,0 +1,25 @@
+TRADE EDGE v17
+
+WEBSITE (public/index.html)
+1. News time: far-away news no longer says "in 55h 30m". It now shows the day and time
+   (e.g. "Wednesday 08:00 AM", Amharic day names when the language is አማ). A countdown
+   ("in 2h 10m") is shown only when the news is under 6 hours away. Same label in the
+   Market News list (Home) and the News list (Analysis).
+2. Home page, empty right side: new "Latest market headlines" panel. The server (/api/headlines)
+   reads the public ForexLive and FXStreet RSS feeds, keeps a 10 minute cache, and the page
+   refreshes it every 10 minutes. Each headline opens the original article.
+3. News lists are now in columns (3 on desktop, 1 compact column on phone), start from today,
+   show only High + Medium impact and the first 12 items. "Show full week" button shows everything.
+4. Phone: the Log out button is now a small icon in the top header (next to the language switch).
+   The floating button at the bottom that covered the navigation bar is removed.
+5. Account form + account card: picture and description added.
+
+CONTROL PANEL (public/admin/index.html)
+6. Add / Edit account now has Description and Account picture. The account list shows both.
+
+BOT / SERVER (netlify/functions/api.mjs)
+7. Accounts store description + image (delete removes the picture too).
+8. Telegram bot "Add account" and "Edit account" ask for a description and a picture (both optional).
+9. New /api/headlines endpoint.
+
+Deploy: double-click 2-deploy.bat. No need to run /api/setup again.

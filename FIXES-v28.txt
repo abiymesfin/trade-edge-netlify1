@@ -1,0 +1,23 @@
+V28 - PRO ANALYTICS (TradeZella-style) + EDIT PLANS & SERVICES TEXT IN THE TELEGRAM BOT
+  Account page > Analytics (index.html)
+    - Filters: account buttons + Model + Period (all time / this month / 30 / 90 days / this year).
+    - Cards: Net P&L (trade count, gross profit/loss) · Trade win % (gauge + wins / break-even / losses)
+      · Avg win/loss (ratio + bar) · Profit factor (ring) · Current streak (days + trades, with longest win/loss streak).
+      Trade win % = wins / (wins + losses); break-even trades are not counted (same as TradeZella).
+    - Daily net cumulative P&L chart (nice axis values, hover on a point shows date + totals).
+    - Trade statistics list: totals, largest win/loss, average per trade and per day, winning days.
+    - Monthly calendar: each day shows P&L, trades and win %; click a day = its trades (symbol, side, time, account, model, P&L).
+      Weekly cards on the right: Week 1, Week 2 ... with P&L, days, trades and win %. Monthly stats on top. Month arrows + "This month".
+      On phones the weekly cards go under the calendar.
+    - Dark + light mode, English + Amharic. Zella-score radar chart is NOT included (as agreed).
+  Telegram bot: Plans & prices editor (api.mjs)
+    - Owner menu button "💳 Plans & prices" or /editplans. All by buttons:
+        tap a plan -> Price (ETB) / Name / Days / Note under the name / Highlight (recommended) / Delete
+        ➕ New plan (name | days | price)      ✨ Services text (add, edit, move up, delete, replace all, back to default)
+        🆓 Free trial days (1-90)              💬 How to pay text
+      You can write English and Amharic in one line.  Quick command: /setprice 2 4000
+    - The website reads all of this live from /api/plans: no deploy needed after changing prices or texts.
+    - /addplan now also sets the price number so the website can show it. /cancel leaves the editor.
+    - Members cannot use the editor (owner only).
+  Website Plans page: shows the owner's services list, trial days, plan notes and highlighted plan.
+  After deploying: open /api/setup once (adds /editplans to the owner's command list).

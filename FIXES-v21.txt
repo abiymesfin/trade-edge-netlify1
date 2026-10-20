@@ -1,0 +1,36 @@
+V21-5 - BOT: one trade on MANY accounts + choose the FRONT picture; HOME: professional headlines card
+  api.mjs  trade form: tap several accounts then Done (same trade saved on each; pictures copied per trade; percent computed per account). New step "which picture first" after screenshots (new + edit trade).
+  index.html  only the Latest market headlines box (render + its own style).
+
+V21-4 - MEMBERS: TELEGRAM BOT BUTTON
+  Website (members only): a Telegram icon next to the logout button + a one-time help card: open the bot, press Start, send /login email password.
+  Only public/index.html changed (inside enterReadOnly). Nothing else touched.
+
+V21 - MEMBERS CAN OPEN THE CONTROL PANEL (LOOK-ONLY)
+  Members (and website sign-ins) can open /admin/. They see ONLY their own data in 3 tabs:
+    Overview (trades, win rate, net P/L, latest trades) · Analysis by model · Trades.
+  No owner tools (subscribers, payments, plans, gifts, accounts) and no editing; data is still added in the Telegram bot.
+  api.mjs   memberSnapshot() + the /api/admin route for non-owners; members' menu has a Control Panel button.
+  admin/index.html   memberMode (tabs, header text, 3 look-only views).
+  After deploying: open /api/setup once so the Telegram menu button points to /admin/.
+
+V21 - NEW LAYOUT (from the reference picture)
+  Look-and-structure block: index.html between TE-LAYOUT-START and TE-LAYOUT-END (delete it = previous layout).
+  Floating pill navigation, centred big hero with orange glow on every page heading (Home, Analysis, Account, Model, Journal),
+  centred large section titles (Market Conditions, News ...), big rounded glass panels.
+  Sign up / sign in / plans screens: same orange glow backdrop, bigger headlines, rounded plan cards (the recommended one lifted).
+
+V21 - ANALYSIS PAGE + MOBILE FIXES
+  Analysis page   New "Market overview" block above the pairs: 4 number cards, bias donut, bias score by pair (bars),
+                  buyers vs sellers bars, signal heatmap (tech / fund / cot / inter / retail).
+                  Every pair card also gets a bias gauge (-100 .. +100) and a price ladder (resistance / price / support).
+                  Code: renderAnalysisDash(), adGauge(), adLadder() in index.html (next to pairCard). Styles: .ad-* in TE-LAYOUT.
+  Phone           Bottom bar stays fixed and the page no longer zooms or slides sideways
+                  (the glow was wider than the screen; now clipped; zoom locked; inputs 16px; safe-area added).
+
+V21 - LOGOUT + NAV ICONS + SYSTEM CHECK
+  Logout icon   It disappeared when the account had no expiry date (the date code crashed before the button was shown).
+                Fixed in fmtDate (top script). The button shows for every signed-in website session (Chrome).
+  Nav icons     New icon set (home, analysis bars, wallet, layers, notebook) on the phone bar AND the desktop pill nav;
+                the active tab is an orange pill with a filled icon.
+  Member panel  Win rate = wins / (wins + losses), same as the website (break-even not counted).

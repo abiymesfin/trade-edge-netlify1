@@ -1,0 +1,8 @@
+TRADE EDGE v19
+
+JOURNAL PAGE EMPTY (public/index.html)
+The Journal page crashed while drawing the trade cards: it called noteOf(), but that helper existed only
+inside the Model page code, so the Journal code could not see it ("noteOf is not defined").
+Home worked because it uses different code. noteOf() is now also defined inside the Journal page code.
+
+Deploy: double-click 2-deploy.bat. No need to run /api/setup again.

@@ -1,0 +1,16 @@
+TRADE EDGE v20
+V20 - PLANS, MEMBERS WITH THEIR OWN JOURNAL, FREE TRIAL, PROMO CODES, NEW LOOK
+  Look           index.html: the dark + orange "glass" theme is ONE block at the end of the main <style>
+                 (between TE-THEME-START and TE-THEME-END). Delete that block = the old white look. Layout is unchanged.
+                 The sign in / plans screens are built in the top <script> (colours are inline there).
+  Website        Sign up = name + e-mail + password (+ promo code). Starts the free trial. Sign in = e-mail + password.
+                 No Telegram button on those pages. In Chrome a member sees their own data, look-only.
+  Telegram bot   Anyone who opens the bot gets their own journal + 3 free days. They add their own accounts, models,
+                 trades and analysis. To join an existing website account: /login you@mail.com Password
+                 (message deleted at once). Members: /start /menu /cancel /plans /promo CODE /login /plan.
+  Own data       Each member sees ONLY their own data (enterScope/leaveScope in api.mjs). Owner tools are owner-only.
+  Plans          1/3/6/12 months. Price = months x PRICE_PER_MONTH (1500 ETB) near the top of api.mjs. TRIAL_DAYS = 3.
+  Promo codes    Owner: /gift 12 | /gift 3 5 | /gift 7d | /gifts, menu button, or Control Panel -> Gifts.
+                 Member: /promo TE-XXXX-XXXX, the sign-up box, or the pay screen. A code replaces the free trial.
+  Monday plan    Every Monday each active member also gets THEIR OWN plan; /plan = any time.
+  After updating: open /api/setup once more (menu buttons: members -> app, owner -> Control Panel).

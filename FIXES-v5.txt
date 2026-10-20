@@ -1,0 +1,12 @@
+TRADE EDGE v5 - checked + fixed (api.mjs only; website file unchanged)
+
+1. Enable/Disable of a TRADE (journal) failed with "invalid trade"  -> fixed.
+2. Bot date "today"/"yesterday" saved a time 3 hours too early      -> fixed (uses UTC+3 clock).
+3. Monday reminder could overwrite a trade saved at the same moment -> now uses the same write lock.
+4. Telegram re-delivering a slow update could save a trade twice   -> repeated update_id is ignored.
+5. Every picture request loaded the whole database                  -> pictures are served directly (faster/cheaper).
+6. Bot numbers: "1,5" was read as 15, "1.5abc" accepted             -> "1,5" = 1.5, junk text rejected.
+7. Bot account balance counted disabled trades (website did not)   -> now the same as the website.
+8. Picture download failure from Telegram was silent               -> bot now tells you to resend.
+
+Deploy: replace netlify/functions/api.mjs (already in this zip) and double-click 2-deploy.bat.

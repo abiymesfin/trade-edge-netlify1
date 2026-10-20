@@ -1,0 +1,8 @@
+TRADE EDGE v15
+
+- Fixed the root cause of invisible +ADD modals: .te-admin-body > * hiding rule was suppressing every modal/toast appended directly to body.
+- Modals and toasts now mount under #te-admin-root.
+- Replaced document-level delegated button listeners with direct handlers rebound after every render, so dynamic +ADD/Edit/Delete/tab controls keep working in Telegram Mini App.
+- Search input is rebound after rerenders.
+- Added visible focus/touch feedback.
+- Existing backend/API, main website and data model preserved.

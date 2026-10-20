@@ -1,0 +1,8 @@
+V27 - ACCOUNT ANALYTICS + DARK / LIGHT MODE (everything else untouched)
+  index.html  1) Account page > new "Analytics" section under My Accounts (data comes from the journal trades):
+                 account switcher (All accounts + each account), Net P&L, Trade win %, Avg win/loss, Profit factor,
+                 current streak (days / trades), daily net cumulative P&L chart, monthly calendar with daily P&L,
+                 trades count, win % and weekly totals. EN + Amharic labels.
+              2) Dark / light mode button in the header (moon / sun). Dark stays the default; the choice is saved in the browser.
+                 The old dark styles are in <style id="teDark"> (switched off in light mode); light fixes in <style id="teLight">.
+  Not included: Zella-score radar chart.

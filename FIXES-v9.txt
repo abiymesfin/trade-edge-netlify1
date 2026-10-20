@@ -1,0 +1,8 @@
+Trade Edge v9
+
+Only deployment reliability was changed from v8.
+- 2-deploy.bat now runs npm install in the project folder before netlify deploy --prod.
+- Both BAT files explicitly cd to their own project directory.
+- No application UI or API logic was changed in this v9 packaging fix.
+
+Reason: Netlify CLI manual deploys of JavaScript/TypeScript functions require dependencies to be installed in node_modules before deployment so the CLI can bundle them.
