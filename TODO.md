@@ -20,9 +20,14 @@
 - GitHub push ለማድረግ የrepository URL እና የተፈቀደ GitHub connector/credentials ያስፈልጋሉ።
 
 
-## Telegram control-panel visual and payment-account upgrade — IN PROGRESS
+## Telegram control-panel visual and payment-account upgrade — DONE
 
 - The control panel opens in Light Mode by default, remembers the user's Light/Dark selection, and provides a visible theme toggle without changing existing data or permissions.
 - The panel receives a professional navigation/header/card treatment while preserving Overview, Website Access, Subscribers, Payments, Plans, trading data, and member views.
 - The owner can add, edit, and remove payment accounts for Ethiopian banks, Telebirr, international crypto, and any other supported route. Each saved account has a region, name, and customer-facing details such as account/phone number, wallet address, accepted currency, and network.
 - Existing payment options remain unchanged until the new account list is explicitly saved.
+
+
+## Next requested items — OPEN
+
+The next product changes can be added without replacing the existing account, payment approval, or trading data flows.

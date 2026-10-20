@@ -1224,7 +1224,8 @@ function memberSnapshot() {
   const trades = db.trades.slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(t => ({ ...t }));
   const accounts = db.accounts.map(a => ({ ...a, pnl: accountPnl(a.id), balance: Number(a.startingBalance || 0) + accountPnl(a.id) }));
   const pairs = db.pairs.map(p => ({ ...p, note: pairNote(p) }));
-  return { ok: true, member: true, overview: calc(live), models, trades, accounts, pairs, siteUrl: siteUrl() };
+  const member = db.users.find(u => u.id === scope?.uid) || {};
+  return { ok: true, member: true, overview: calc(live), models, trades, accounts, pairs, siteUrl: siteUrl(), currentPlan: member.plan || '', plans: planList(), payInfo: db.payInfo || '', paymentMethods: db.paymentMethods || [], pending: pendingPayment(member) };
 }
 
 async function adminAction(req, body) {
