@@ -3064,12 +3064,18 @@ html[data-theme="light"] .an-day.w{background:#e3f8ec}html[data-theme="light"] .
 html[data-theme="light"] .an-day.void{background:transparent}
 html[data-theme="light"] .an-dow,html[data-theme="light"] .an-wk{background:#f1f1f4}
 html[data-theme="light"] .an-wk .n{color:#0b4a28}
+html[data-theme="light"] .an-sheet{background:#fff;color:var(--text);border-color:var(--line)}
+html[data-theme="light"] .an-sheet .sum{color:var(--muted)}
+html[data-theme="light"] .an-sheet .sum b{color:var(--text)}
+html[data-theme="light"] .an-tr{background:var(--soft);border:1px solid var(--line)}
+html[data-theme="light"] .an-tr .m{color:var(--muted)}
+html[data-theme="light"] .an-x{background:var(--soft);color:var(--text)}
 @media(max-width:1280px){.an-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.an-grid{grid-template-columns:1fr}}
 @media(max-width:700px){
   .an-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.an-kpi .v{font-size:23px}.an-kpi{padding:14px}.an-gauge{width:64px;height:40px}.an-ring{width:50px;height:50px}.an-row{gap:6px}
   .an-kpi:last-child{grid-column:1/-1}
   .an-cal{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.an-cal .an-wk,.an-cal .an-wk-h{display:none}
-  .an-day{min-height:58px;padding:4px 3px;align-items:center;text-align:center}.an-day em{display:none}.an-day b{font-size:10.5px;margin-top:auto}.an-day>span{align-self:flex-end;font-size:10px}
+  .an-day{min-height:66px;padding:4px 3px;align-items:center;text-align:center}.an-day em{display:block;font-size:9px;line-height:1.1}.an-day b{font-size:10.5px;margin-top:auto}.an-day>span{align-self:flex-end;font-size:10px}
   .an-weeks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
   .an-top{flex-direction:column;align-items:stretch}.an-filters select{flex:1}
 }
@@ -5823,7 +5829,7 @@ document.addEventListener("click", event => {
   state.newsAll = !(state.newsAll === true);
   renderNews();
   if(typeof renderAnalysisNews === "function"){ renderAnalysisNews(); }
-});
+}, true);
 
 
 /* ==========================================================
@@ -6231,23 +6237,17 @@ async function loadAccount(){
 
 
 async function loadNews(){
-
   const data = await fetchJSON("/api/news");
-
-  if(data && Array.isArray(data.items)){
-    state.news = data.items;
-  }
-
-  /* no backend feed: read the Forex Factory weekly calendar directly */
-  if(!state.news.length && window.TE_NEWS){
-    const fallback = await TE_NEWS.fallback();
-    if(fallback.length){ state.news = fallback; }
-  }
-
+  const serverItems = data && Array.isArray(data.items) ? data.items : [];
+  let weeklyItems = [];
+  if(window.TE_NEWS){ weeklyItems = await TE_NEWS.fallback(); }
+  const merged = serverItems.concat(weeklyItems).filter(function(item, index, list){
+    const key = [item.datetime, item.currency, item.title].join("|");
+    return list.findIndex(function(other){ return [other.datetime, other.currency, other.title].join("|") === key; }) === index;
+  });
+  if(merged.length){ state.news = merged.sort(function(a,b){ return new Date(a.datetime) - new Date(b.datetime); }); }
   renderNews();
-
 }
-
 
 async function loadSession(){
 
@@ -9818,7 +9818,7 @@ document.addEventListener("click", event => {
 (function(){
   var DICT = {
     en:{
-      netPnl:"Net P&L", totalTrades:"Total Trades", winRate:"Win Rate", profitFactor:"Profit Factor",
+      netPnl:"Net P&L", balance:"Balance", balanceCap:"Net P/L", totalTrades:"Total Trades", winRate:"Win Rate", profitFactor:"Profit Factor",
       capPnl:"This month vs\nlast month", capTrades:"Trades vs\nlast month", capWr:"Win rate vs\nlast month", capPf:"Factor vs\nlast month",
       habT:"Trading Habits", habS:"Track your trade activity", legTrades:"Trades", legWins:"Winning trades",
       p6:"Last 6 months", pYear:"This year",
@@ -9834,7 +9834,7 @@ document.addEventListener("click", event => {
       acBal:"Balance", acTrades:"trades", acEmpty:"No accounts yet. Add an account first.", acManage:"Manage accounts", acClose:"Close", acViewing:"Switch account"
     },
     am:{
-      netPnl:"የተጣራ ትርፍ/ኪሳራ", totalTrades:"ጠቅላላ ትሬዶች", winRate:"የማሸነፍ ምጣኔ", profitFactor:"የትርፍ ሬሾ",
+      netPnl:"የተጣራ ትርፍ/ኪሳራ", balance:"ሒሳብ", balanceCap:"የተጣራ ትርፍ/ኪሳራ", totalTrades:"ጠቅላላ ትሬዶች", winRate:"የማሸነፍ ምጣኔ", profitFactor:"የትርፍ ሬሾ",
       capPnl:"ይህ ወር ከባለፈው\nወር ጋር", capTrades:"ትሬዶች ከባለፈው\nወር ጋር", capWr:"ምጣኔ ከባለፈው\nወር ጋር", capPf:"ሬሾ ከባለፈው\nወር ጋር",
       habT:"የትሬድ እንቅስቃሴ", habS:"የትሬድ እንቅስቃሴህን ተከታተል", legTrades:"ትሬዶች", legWins:"አሸናፊ ትሬዶች",
       p6:"ያለፉት 6 ወራት", pYear:"ይህ ዓመት",
@@ -9935,10 +9935,13 @@ document.addEventListener("click", event => {
     var box = $1("#kpiGrid"); if(!box){ return; }
     var all = liveTrades(), tot = stats(all);
     var cur = stats(all.filter(function(t){ return inMonth(t, 0); })), prev = stats(all.filter(function(t){ return inMonth(t, -1); }));
-    var has = all.length > 0;
+    var selected = onAccounts().filter(function(a){ return SEL === "all" || String(a.id) === SEL; });
+    var starting = selected.reduce(function(sum, a){ return sum + (Number(a.startingBalance) || 0); }, 0);
+    var has = selected.length > 0;
+    var totalBalance = starting + tot.pnl;
     var pf = tot.pf === Infinity ? "∞" : (isFinite(tot.pf) ? tot.pf.toFixed(2) : "—");
     var cards = [
-      { c:"dark kpi-pick", pick:true, ico:ICON.pnl, label:L("netPnl"), val:has ? money(tot.pnl) : "—", cap:L("capPnl"), b:has ? badge(pctChange(cur.pnl, prev.pnl)) : "" },
+      { c:"dark kpi-pick", pick:true, ico:ICON.pnl, label:L("balance"), val:has ? money(totalBalance) : "—", cap:has ? (L("balanceCap") + ": " + money(tot.pnl)) : L("balanceCap"), b:"" },
       { c:"", ico:ICON.trades, label:L("totalTrades"), val:has ? String(tot.n) : "—", cap:L("capTrades"), b:has ? badge(pctChange(cur.n, prev.n)) : "" },
       { c:"", ico:ICON.wr, label:L("winRate"), val:isFinite(tot.wr) ? Math.round(tot.wr) + "%" : "—", cap:L("capWr"), b:(isFinite(cur.wr) && isFinite(prev.wr)) ? badge(cur.wr - prev.wr) : "" },
       { c:"", ico:ICON.pf, label:L("profitFactor"), val:pf, cap:L("capPf"), b:(isFinite(cur.pf) && isFinite(prev.pf) && prev.pf > 0) ? badge(pctChange(cur.pf, prev.pf)) : "" }
