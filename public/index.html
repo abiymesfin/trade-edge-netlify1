@@ -326,22 +326,41 @@
       card.style.cssText = "";
       while(card.firstChild){ card.removeChild(card.firstChild); }
 
+      var shell = mk("div", ""); shell.className = "teo-auth-shell-modern";
+      var hero = mk("section", ""); hero.className = "teo-auth-hero-modern";
+      var heroBrand = mk("div", ""); heroBrand.className = "teo-hero-brand";
+      var heroLogo = document.createElement("img"); heroLogo.src = "trading-edge-logo-192.png"; heroLogo.alt = "Trade Edge";
+      heroBrand.appendChild(heroLogo);
+      var heroName = mk("div", ""); heroName.className = "teo-hero-brand-name"; heroName.appendChild(mk("strong", "Trade Edge", "")); heroName.appendChild(mk("span", "Trading Journal", "")); heroBrand.appendChild(heroName);
+      hero.appendChild(heroBrand);
+      hero.appendChild(mk("div", "TRADE SMARTER.", "")).className = "teo-hero-kicker";
+      var heroTitle = mk("h1", "Journal better.\nGrow stronger.", ""); heroTitle.className = "teo-hero-title"; hero.appendChild(heroTitle);
+      hero.appendChild(mk("p", "Track your trades, analyze performance, and improve your strategy with Trade Edge.", "")).className = "teo-hero-copy";
+      var benefits = mk("div", ""); benefits.className = "teo-hero-benefits";
+      ["Professional dashboard & analytics", "Detailed trading journal", "Live market analysis", "Market news & alerts", "Advanced performance insights"].forEach(function(text){
+        var row = mk("div", ""); row.className = "teo-hero-benefit"; row.appendChild(mk("span", "↗", "")).className = "teo-hero-benefit-icon"; row.appendChild(mk("span", text, "")); benefits.appendChild(row);
+      });
+      hero.appendChild(benefits);
+      var heroFoot = mk("div", "Trade · Learn · Grow", ""); heroFoot.className = "teo-hero-foot"; hero.appendChild(heroFoot);
+      var panel = mk("section", ""); panel.className = "teo-auth-panel-modern"; shell.appendChild(hero); shell.appendChild(panel); card.appendChild(shell);
+      var language = mk("div", "◎  English ⌄", ""); language.className = "teo-auth-language-modern"; panel.appendChild(language);
+
       var close = mk("button", "×", ""); close.type = "button"; close.className = "teo-auth-close";
       close.setAttribute("aria-label", "Close"); close.onclick = function(){ overlay.remove(); overlay = null; };
-      card.appendChild(close);
+      panel.appendChild(close);
       var head = mk("div", ""); head.className = "teo-auth-head";
       var brand = document.createElement("img"); brand.src = "trading-edge-logo-192.png"; brand.alt = "Trade Edge"; brand.className = "teo-auth-logo";
       head.appendChild(brand);
       var brandCopy = mk("div", ""); brandCopy.className = "teo-auth-brand-copy";
       brandCopy.appendChild(mk("div", "Trade Edge", "")); brandCopy.appendChild(mk("span", "TRADE · LEARN · GROW", ""));
-      head.appendChild(brandCopy); card.appendChild(head);
+      head.appendChild(brandCopy); panel.appendChild(head);
 
       var tabs = mk("div", ""); tabs.className = "teo-auth-tabs teo-auth-tabs-compact";
       var loginTab = mk("button", "Sign in", ""); loginTab.type = "button"; loginTab.className = "teo-auth-tab" + (!isSignup ? " active" : "");
       loginTab.onclick = function(){ if(isSignup){ showAuth("login"); } };
       var signupTab = mk("button", "Create account", ""); signupTab.type = "button"; signupTab.className = "teo-auth-tab" + (isSignup ? " active" : "");
       signupTab.onclick = function(){ if(!isSignup){ showAuth("signup"); } };
-      tabs.appendChild(loginTab); tabs.appendChild(signupTab); card.appendChild(tabs);
+      tabs.appendChild(loginTab); tabs.appendChild(signupTab); panel.appendChild(tabs);
 
       var content = mk("div", ""); content.className = "teo-auth-content teo-auth-content-compact";
       content.appendChild(mk("div", isSignup ? "Create your account" : "Welcome back", "")).className = "teo-auth-title";
@@ -373,14 +392,14 @@
       content.appendChild(mk("div", isSignup ? "Already have an account?" : "New to Trade Edge?", "")).className = "teo-auth-switch-label";
       var swap = mk("button", isSignup ? "Sign in" : "Create an account", ""); swap.type = "button"; swap.className = "teo-auth-switch teo-auth-switch-compact";
       swap.onclick = function(){ showAuth(isSignup ? "login" : "signup"); }; content.appendChild(swap);
-      card.appendChild(content);
+      panel.appendChild(content);
 
       var trial = mk("button", "", ""); trial.type = "button"; trial.className = "teo-auth-trialbar teo-auth-trialbar-compact";
       trial.appendChild(mk("span", "✦", "")).className = "teo-auth-gift";
       var trialCopy = mk("span", "", ""); trialCopy.className = "teo-auth-trial-copy";
       trialCopy.appendChild(mk("strong", "View plans & pricing", "")); trialCopy.appendChild(mk("small", "See all plans and choose your access period", ""));
       trial.appendChild(trialCopy); trial.appendChild(mk("span", "→", "")).className = "teo-auth-trial-arrow";
-      trial.onclick = function(){ showPlans(); }; card.appendChild(trial);
+      trial.onclick = function(){ showPlans(); }; panel.appendChild(trial);
 
       form.onsubmit = function(e){
         e.preventDefault(); btn.disabled = true; btn.textContent = isSignup ? "Creating account…" : "Signing in…"; err.textContent = "";
@@ -3420,7 +3439,16 @@ html[data-theme="dark"] #logoutBtn.te-logout{color:#ff9b92;border-color:rgba(255
 html[data-theme="dark"] #logoutBtn.te-logout:hover,html[data-theme="dark"] #logoutBtn.te-logout:focus-visible{background:#c94c43;color:#fff}
 @media(max-width:700px){#logoutBtn.te-logout{height:32px;margin-left:5px;padding:0 9px;font-size:10px;gap:5px}#logoutBtn.te-logout svg{width:14px;height:14px}}
 </style>
-</head>
+\n<style id="teAuthReferenceUpgrade">
+.teo-auth-overlay{align-items:center!important;justify-content:center!important;padding:18px!important;background:#020b13!important;background-image:radial-gradient(900px 580px at 50% 50%,rgba(0,231,137,.08),transparent 65%)!important}
+.teo-auth-card-compact{width:min(100%,1240px)!important;max-width:1240px!important;height:min(94vh,850px)!important;min-height:650px!important;padding:0!important;overflow:hidden!important;border:1px solid rgba(147,183,194,.28)!important;border-radius:25px!important;background:#07111d!important;box-shadow:0 30px 100px rgba(0,0,0,.72),0 0 70px rgba(0,217,125,.08)!important}
+.teo-auth-shell-modern{display:grid!important;grid-template-columns:1.08fr .92fr!important;width:100%;height:100%;min-height:0}
+.teo-auth-hero-modern{position:relative;display:flex;flex-direction:column;justify-content:flex-start;min-width:0;overflow:hidden;padding:45px 58px 38px;background-color:#03121d!important;background-image:radial-gradient(ellipse at 76% 85%,rgba(0,232,133,.30),transparent 34%),linear-gradient(145deg,rgba(2,15,28,.96),rgba(2,10,17,.82)),repeating-linear-gradient(168deg,transparent 0 74px,rgba(22,225,137,.10) 75px,transparent 77px),repeating-linear-gradient(78deg,transparent 0 92px,rgba(87,163,185,.07) 93px,transparent 95px)!important;background-position:center!important;background-size:auto!important;background-repeat:no-repeat!important}
+.teo-auth-hero-modern:after{content:'';position:absolute;inset:auto -8% -18% -8%;height:52%;background:linear-gradient(12deg,rgba(0,238,124,.85),rgba(0,238,124,0) 66%);opacity:.2;transform:rotate(-5deg);pointer-events:none}
+.teo-hero-brand{display:flex;align-items:center;gap:15px;position:relative;z-index:1}.teo-hero-brand img{width:58px;height:58px;object-fit:contain;border-radius:16px;background:#021018;padding:7px;box-sizing:border-box}.teo-hero-brand-name strong{display:block;font-size:29px;letter-spacing:-.04em;color:#f8fffb}.teo-hero-brand-name span{display:block;margin-top:2px;font-size:15px;letter-spacing:.08em;color:#b7c8c5}.teo-hero-kicker{position:relative;z-index:1;margin-top:70px;color:#20ee8b;font-size:15px;font-weight:850;letter-spacing:.17em}.teo-hero-title{position:relative;z-index:1;white-space:pre-line;margin:11px 0 18px!important;max-width:600px;color:#fff!important;font-size:clamp(45px,5.2vw,76px)!important;line-height:1.02!important;letter-spacing:-.055em!important;font-weight:850!important}.teo-hero-title::first-line{color:#fff}.teo-hero-copy{position:relative;z-index:1;max-width:570px;margin:0 0 30px;color:#e3edeb;font-size:19px;line-height:1.55}.teo-hero-benefits{position:relative;z-index:1;display:grid;gap:12px}.teo-hero-benefit{display:flex;align-items:center;gap:14px;color:#f2faf6;font-size:16px;font-weight:600}.teo-hero-benefit-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(0,216,123,.16);border:1px solid rgba(0,238,139,.34);color:#28ee91;font-size:25px;font-weight:900}.teo-hero-foot{position:relative;z-index:1;margin-top:auto;color:#9aafa9;font-size:13px;letter-spacing:.16em}.teo-auth-panel-modern{position:relative;display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0;min-height:0;padding:45px 58px!important;background:linear-gradient(180deg,rgba(5,15,27,.98),rgba(5,12,22,.98))!important}.teo-auth-language-modern{position:absolute;top:28px;right:42px;padding:12px 17px;border:1px solid rgba(158,187,205,.28);border-radius:13px;color:#d8e4ed;font-size:14px;background:rgba(11,23,38,.7)}.teo-auth-panel-modern .teo-auth-head{display:none}.teo-auth-panel-modern .teo-auth-close{right:17px;top:16px;z-index:4}.teo-auth-panel-modern .teo-auth-tabs-compact{height:64px!important;margin:42px 0 28px!important;border-radius:18px!important;padding:4px!important;background:rgba(7,17,30,.75)!important;border-color:rgba(151,181,202,.22)!important}.teo-auth-panel-modern .teo-auth-tabs-compact .teo-auth-tab{height:54px!important;border-radius:14px!important;font-size:17px!important}.teo-auth-panel-modern .teo-auth-content-compact{max-width:560px!important;width:100%;margin:0 auto}.teo-auth-panel-modern .teo-auth-content-compact .teo-auth-title{text-align:center!important;font-size:34px!important;color:#f8fbff!important}.teo-auth-panel-modern .teo-auth-content-compact .teo-auth-subtitle{text-align:center!important;font-size:15px!important;margin-bottom:28px!important;color:#c0ccd7!important}.teo-auth-panel-modern .teo-auth-form-compact{gap:16px!important}.teo-auth-panel-modern .teo-auth-field-compact{gap:7px!important}.teo-auth-panel-modern .teo-auth-label{display:none!important}.teo-auth-panel-modern .teo-auth-input-compact{height:58px!important;border-radius:15px!important;padding:0 18px!important;background:rgba(18,31,49,.78)!important;border-color:rgba(156,185,209,.42)!important;font-size:15px!important}.teo-auth-panel-modern .teo-auth-input-compact:focus{border-color:#17e985!important;box-shadow:0 0 0 3px rgba(0,229,137,.13)!important}.teo-auth-panel-modern .teo-auth-secure-note{text-align:left!important;color:#a9bac8!important;font-size:12px!important}.teo-auth-panel-modern .teo-auth-submit-compact{height:58px!important;border-radius:15px!important;font-size:17px!important;background:linear-gradient(105deg,#27f25e,#03c98d)!important;color:#03160f!important}.teo-auth-panel-modern .teo-auth-switch-label{display:inline!important;color:#d9e3ec!important;font-size:13px!important}.teo-auth-panel-modern .teo-auth-switch-compact{display:inline-block!important;margin:16px 0 0 6px!important;font-size:14px!important;color:#18e984!important}.teo-auth-panel-modern .teo-auth-trialbar-compact{max-width:560px!important;margin:24px auto 0!important;min-height:72px!important;border-radius:16px!important;background:linear-gradient(105deg,rgba(0,107,67,.48),rgba(0,33,32,.86))!important;border-color:rgba(0,229,137,.58)!important}.teo-auth-panel-modern .teo-auth-trialbar-compact .teo-auth-trial-copy strong{font-size:16px!important}.teo-auth-panel-modern .teo-auth-trialbar-compact .teo-auth-trial-copy small{font-size:12px!important;color:#e2f3ea!important}
+@media(max-width:820px){.teo-auth-card-compact{height:auto!important;min-height:0!important;max-height:96vh!important;overflow:auto!important}.teo-auth-shell-modern{grid-template-columns:1fr!important}.teo-auth-hero-modern{min-height:245px!important;padding:26px 24px 24px!important}.teo-hero-brand img{width:44px;height:44px}.teo-hero-brand-name strong{font-size:22px}.teo-hero-brand-name span{font-size:11px}.teo-hero-kicker{margin-top:24px;font-size:10px}.teo-hero-title{font-size:34px!important;margin:6px 0 8px!important}.teo-hero-copy{font-size:12px;line-height:1.4;margin-bottom:0}.teo-hero-benefits,.teo-hero-foot{display:none}.teo-auth-panel-modern{padding:22px 20px 26px!important}.teo-auth-language-modern{top:20px;right:20px;font-size:11px;padding:9px 12px}.teo-auth-panel-modern .teo-auth-tabs-compact{margin-top:35px!important}.teo-auth-panel-modern .teo-auth-content-compact .teo-auth-title{font-size:28px!important}}
+@media(max-width:520px){.teo-auth-overlay{padding:0!important}.teo-auth-card-compact{width:100vw!important;max-width:none!important;max-height:none!important;border-radius:0!important;border:0!important}.teo-auth-hero-modern{min-height:210px!important}.teo-auth-panel-modern{padding-left:16px!important;padding-right:16px!important}.teo-auth-panel-modern .teo-auth-input-compact{height:53px!important}.teo-auth-panel-modern .teo-auth-trialbar-compact{min-height:62px!important}.teo-auth-panel-modern .teo-auth-trialbar-compact .teo-auth-trial-copy strong{font-size:13px!important}}
+</style>\n</head>
 
 <body>
 
@@ -3551,7 +3579,6 @@ html[data-theme="dark"] #logoutBtn.te-logout:hover,html[data-theme="dark"] #logo
 
         <button class="te-logout" id="logoutBtn" type="button" hidden aria-label="Log out · ውጣ" title="Log out · ውጣ">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M16 8l4 4-4 4M20 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Log out · ውጣ</span>
         </button>
 
       </div>
