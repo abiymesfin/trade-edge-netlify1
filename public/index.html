@@ -2963,6 +2963,19 @@ a,button,.nav-link,.mobile-nav-link{touch-action:manipulation}
 /* TE-LAYOUT-END */
 
   </style>
+  <style id="tePolish">
+    /* Final UI polish */
+    #home .kpi-badge,#home .kpi-badge.neg,#home .pie-row .kpi-badge{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;color:var(--te-red)!important;box-shadow:none!important}
+    #home .kpi-badge:not(.neg){color:var(--te-br)!important}
+    #home .ar-chip.neg,#home .ar-chip.r{background:transparent!important;border:0!important;padding-left:0!important;padding-right:0!important}
+    .tt-user{cursor:pointer;outline:none}.tt-user:focus-visible{box-shadow:0 0 0 3px rgba(25,177,96,.25);border-radius:14px}
+    .profile-card{display:flex;align-items:center;gap:16px;padding:22px;border:1px solid var(--te-line);border-radius:22px;background:var(--te-card);box-shadow:var(--te-shadow);min-width:0}
+    .profile-avatar{width:58px;height:58px;flex:none;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#19b160,#0b4a28);color:#fff;font-size:24px;font-weight:800;box-shadow:0 10px 24px rgba(25,177,96,.25)}
+    .profile-copy{min-width:0}.profile-kicker{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--te-br);margin-bottom:4px}.profile-copy h2{margin:0;color:var(--te-ink);font-size:21px;letter-spacing:-.03em}.profile-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:6px;color:var(--te-mut);font-size:13px}.profile-role{font-weight:800;color:var(--te-br)}.profile-email{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px}.profile-logout{margin-left:auto;flex:none;width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(239,93,83,.28);border-radius:13px;background:rgba(239,93,83,.08);color:#d94e47;cursor:pointer}
+    @media(max-width:600px){.profile-card{padding:17px;gap:12px}.profile-avatar{width:48px;height:48px;border-radius:15px;font-size:20px}.profile-copy h2{font-size:18px}.profile-email{max-width:190px}}
+    html[data-theme="light"] .ad-bar-n,html[data-theme="light"] .ad-heat tbody th,html[data-theme="light"] .ad-legend b,html[data-theme="light"] .ad-heat td,html[data-theme="light"] .ad-lv b{color:var(--text)!important}
+    html[data-theme="light"] .ad-bar-t,html[data-theme="light"] .ad-bs-t{background:rgba(0,0,0,.08)}
+  </style>
   <style id="teAnalytics">
 .an-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px}
 .an-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0}
@@ -3651,7 +3664,7 @@ html[data-theme="dark"] #logoutBtn.te-logout:hover,html[data-theme="dark"] #logo
         <button class="tt-btn" id="ttNews" type="button" aria-label="News">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4 8 8 5.5L20 8"/></svg>
         </button>
-        <div class="tt-user">
+        <div class="tt-user" id="ttProfile" role="button" tabindex="0" aria-label="Open profile">
           <span class="tt-av" id="ttAv">T</span>
           <span class="tt-name"><b id="ttName">Trader</b><small id="ttRole">Trade Edge</small></span>
         </div>
@@ -4133,6 +4146,19 @@ html[data-theme="dark"] #logoutBtn.te-logout:hover,html[data-theme="dark"] #logo
       </div>
     </section>
 
+    <section class="section profile-section">
+      <div class="profile-card" id="profileCard">
+        <div class="profile-avatar" id="profileAvatar">T</div>
+        <div class="profile-copy">
+          <div class="profile-kicker">Trade Edge profile</div>
+          <h2 id="profileName">Trader</h2>
+          <div class="profile-meta"><span class="profile-role" id="profileRole">Member</span><span class="profile-email" id="profileEmail">—</span></div>
+        </div>
+        <button type="button" class="profile-logout" id="profileLogout" aria-label="Log out" title="Log out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M16 8l4 4-4 4M20 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
     <section class="section">
       <div class="section-head">
         <div>
@@ -5786,7 +5812,9 @@ function renderNews(){
 }
 
 document.addEventListener("click", event => {
-  if(!event.target.closest("[data-news-toggle]")){ return; }
+  const toggle = event.target.closest && event.target.closest("[data-news-toggle]");
+  if(!toggle){ return; }
+  event.preventDefault(); event.stopPropagation();
   state.newsAll = !(state.newsAll === true);
   renderNews();
   if(typeof renderAnalysisNews === "function"){ renderAnalysisNews(); }
@@ -10011,6 +10039,14 @@ document.addEventListener("click", event => {
 
   /* ---------- header: date + profile chip ---------- */
   function ordinal(n){ var s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function renderProfile(){
+    var name = (userInfo && userInfo.name) || L("trader");
+    var role = userInfo ? (userInfo.owner ? L("owner") : L("member")) : L("member");
+    var email = (userInfo && userInfo.email) || "—";
+    var av = String(name).trim().charAt(0).toUpperCase() || "T";
+    var pn = $1("#profileName"), pr = $1("#profileRole"), pe = $1("#profileEmail"), pa = $1("#profileAvatar");
+    if(pn){ pn.textContent = name; } if(pr){ pr.textContent = role; } if(pe){ pe.textContent = email; } if(pa){ pa.textContent = av; }
+  }
   function renderHead(){
     var el = $1("#homeDate");
     if(el){
@@ -10023,16 +10059,17 @@ document.addEventListener("click", event => {
     var name = (userInfo && userInfo.name) || L("trader"), role = userInfo ? (userInfo.owner ? L("owner") : L("member")) : "Trade Edge";
     if(nm){ nm.textContent = name; }
     if(rl){ rl.textContent = role; }
-    if(av){ av.textContent = String(name).trim().charAt(0) || "T"; }
+    if(av){ av.textContent = String(name).trim().charAt(0).toUpperCase() || "T"; }
+    renderProfile();
   }
   function loadUser(){
     try{
       var tg = window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user;
-      if(tg && tg.first_name){ userInfo = { name:tg.first_name, owner:true }; renderHead(); }
+      if(tg && tg.first_name){ userInfo = { name:tg.first_name, owner:true, email:tg.username ? "@" + tg.username : "" }; renderHead(); }
     }catch(e){}
     try{
       fetch("/api/session", { credentials:"include" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
-        if(j && j.user){ userInfo = { name:j.user.name || (userInfo && userInfo.name) || "", owner:!!j.user.owner }; renderHead(); }
+        if(j && j.user){ userInfo = { name:j.user.name || (userInfo && userInfo.name) || "", owner:!!j.user.owner, email:j.user.email || (userInfo && userInfo.email) || "" }; renderHead(); }
       }).catch(function(){});
     }catch(e){}
   }
@@ -10119,6 +10156,12 @@ document.addEventListener("click", event => {
       });
     }
     var go = $1("#ttSearch"); if(go){ go.addEventListener("click", function(){ var l = document.querySelector('.nav-link[data-page="journal"]'); if(l){ l.click(); } }); }
+    var profile = $1("#ttProfile"); if(profile){
+      var openProfile = function(){ var l = document.querySelector('.nav-link[data-page="account"]'); if(l){ l.click(); } window.scrollTo({ top:0, behavior:"smooth" }); };
+      profile.addEventListener("click", openProfile);
+      profile.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openProfile(); } });
+    }
+    var profileLogout = $1("#profileLogout"); if(profileLogout){ profileLogout.addEventListener("click", function(){ var b = $1("#logoutBtn"); if(b){ b.click(); } }); }
     var nw = $1("#ttNews"); if(nw){ nw.addEventListener("click", function(){ var n = $1("#newsList"); if(n){ n.scrollIntoView({ behavior:"smooth", block:"start" }); } }); }
     var pb = $1("#sidePromoBtn"); if(pb){ pb.addEventListener("click", function(){ if(window.teShowPlans){ window.teShowPlans(); } }); }
     document.querySelectorAll(".lang-btn").forEach(function(b){ b.addEventListener("click", function(){ setTimeout(renderAll, 0); }); });
