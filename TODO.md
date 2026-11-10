@@ -1,38 +1,45 @@
 # TODO
 
+## ዲዛይን እና የአሁኑ ሲስተም — የማይነካ
+
+- የአሁኑ dark/light design፣navigation፣cards፣mobile layout እና visual identity እንዳሉ ይቆያሉ።
+- ነባር authentication፣Telegram bot/admin panel፣payment flow እና user data አይሰረዙም አይresetም።
+- MT5፣broker connection ወይም paid trading integration አይጨመርም።
+
 ## Website signup ከTelegram ጋር በአውቶማቲክ ማገናኘት — DONE
 
-- Website signup ከTelegram Mini App ሲመጣ signed Telegram identityን ይጠቀማል።
-- በመደበኛ browser signup ላይ 15-ደቂቃ የሚሰራ one-time `Connect Telegram` deep-link ይፈጠራል።
-- Signup ከተሳካ በኋላ Telegram deep-link በራስ-ሰር ለመክፈት ይሞክራል፣ fallback button ግን ይቀራል።
-- ተጠቃሚው linkን ከከፈተ እና Telegram bot ላይ Start ከጫነ በኋላ account በራስ-ሰር ይገናኛል።
-- አሮጌው email/password fallback መንገድ እንደቀጠለ ነው።
+Website signup ከTelegram Mini App signed identity ጋር ይሰራል፣ browser signup ላይ one-time deep-link ይፈጥራል፣email/password fallback ይቀጥላል።
 
 ## Customer payment submission flow — DONE
 
-- Customer My Plan ላይ `View payment instructions` ሲጫን የpayment options እና የpayment submission form ይከፈታል።
-- Customer የሚከፍልበትን plan እና admin ያስቀመጠውን payment account ይመርጣል።
-- Phone number፣paying account/wallet፣transaction ID/reference እና optional payment screenshot ይላካል።
-- Website payment flow እና Telegram Mini App payment flow ተመሳሳይ `/api/subscribe` endpoint ይጠቀማሉ።
-- Owner Payments tab ላይ payer phone፣payer account፣transaction ID እና screenshot link ይታያሉ፤ approval አሁንም manual ነው።
+Customer admin ያስቀመጠውን payment account ይመርጣል። Customer የሚያስገባው phone number፣transaction ID/reference እና optional screenshot ብቻ ነው። Bank account/crypto address የሚያስገባው admin ነው፤customer የራሱን bank/crypto account አይሞላም። `files is not defined` የpayment submission ስህተት ተስተካክሏል።
 
-## Ethiopia / International payment flow — DONE
+## ደረጃ 1 — Dashboard እና Analytics — IN PROGRESS
 
-- Ethiopia የbank transfer እና Telebirr አማራጮች ተጨምረዋል።
-- International cryptocurrency አማራጭ ተጨምሯል፣ network እና transaction ID/reference ይጠይቃል።
-- Admin በPlans ክፍል ውስጥ የbank፣Telebirr እና crypto wallet/network መመሪያዎችን ማስተካከል ይችላል።
-- Payment account edits now persist to the backend immediately; Save all accounts also persists the full list.
+- **DONE:** የእውነተኛ journal records ብቻ በመጠቀም Total Loss፣Maximum Drawdown፣Win Rate፣Profit Factor፣Expectancy፣Average Win፣Average Loss፣Average R:R፣Total Trades እና Open Trades ወደ existing account summary card ተጨምረዋል።
+- **DONE:** የmetrics ስሌት በenabled account/trade records ላይ ብቻ ይሰራል፤fake data አይፈጠርም።
+- **OPEN:** Date range/account filters፣equity curve፣monthly/daily performance፣trading calendar፣today status እና recent-trade analytics እንደ ቀጣይ additive ማሻሻያ ይጨመራሉ።
 
-## Later integration — OPEN
+## ደረጃ 2 — Accounts እና Risk Center — OPEN
 
-- ትክክለኛ የTelebirr/bank/crypto provider API ለመገናኘት provider credentials፣merchant account እና webhook specifications ያስፈልጋሉ።
+Personal/demo/prop account type፣balance፣equity፣target፣loss limit፣drawdown፣risk per trade፣max trades/day፣prop-firm challenge progress እና smart risk calculator ይጨመራሉ።
 
-## Telegram control-panel visual and payment-account upgrade — DONE
+## ደረጃ 3 — Journal እና Strategy Playbook — OPEN
 
-- The control panel opens in Light Mode by default, remembers the user's Light/Dark selection, and provides a visible theme toggle.
-- Professional navigation/header/card treatment, dark mobile tabs and SVG navigation icons are included.
-- Add/Edit/Delete/Save plan and payment actions use compact icon controls with tooltips.
+Advanced trade entry፣risk፣session፣setup፣psychology፣mistake tags፣rule adherence፣partial close፣multiple entries፣strategy rules፣checklist እና strategy screenshots ይጨመራሉ።
 
-## Next requested items — OPEN
+## ደረጃ 4 — Market Intelligence — OPEN
 
-The next product changes can be added without replacing the existing account, payment approval, or trading data flows.
+D1/H4/H1/M15/M5፣market structure፣BOS/CHoCH፣FVG፣liquidity፣support/resistance፣sessions፣sentiment፣watchlist እና XAUUSD ይጨመራሉ። Reliable free source ካልተገኘ unavailable ይታያል።
+
+## ደረጃ 5 — AI Coach እና Discipline — OPEN
+
+AI Coach actual journal data ብቻ ተጠቅሞ mistakes፣emotion፣revenge trading፣overtrading፣risk እና strategy performance ይተንትናል። Goals፣checklist፣emotion tracking፣mistakes፣no-trade days እና warnings ይጨመራሉ።
+
+## ደረጃ 6 — Backtesting እና Reports — OPEN
+
+Manual backtesting sessions፣strategy comparison፣win rate፣profit factor፣drawdown እና daily/weekly/monthly/account/strategy/risk CSV/PDF reports ይጨመራሉ።
+
+## ደረጃ 7 — Notifications እና verification — OPEN
+
+Daily loss/profit alerts፣excessive risk፣consecutive losses፣weekly/monthly summaries ይጨመራሉ። እያንዳንዱ phase authentication፣user privacy፣Telegram፣payment፣mobile layout እና existing data ጋር ይፈተናል።
