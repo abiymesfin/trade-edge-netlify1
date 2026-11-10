@@ -1,0 +1,4 @@
+V30 - COMPACT ICON-ONLY MOBILE NAV
+  Phone bottom bar (<=1000px) is now a slim floating dock: 6 icons, no visible names (names kept for screen readers / language switch).
+  Active page = green rounded pill. Dock slides down when scrolling down and returns when scrolling up (or tapping it).
+  Changed: public/index.html only (style block TE-DOCK-START..END, #teDock markup, script#teDockJs). Backend untouched.

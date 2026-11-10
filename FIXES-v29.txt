@@ -1,0 +1,6 @@
+V29 - HOME ACCOUNT SWITCHER
+  Green "Net P&L" card on Home now shows the total of ALL accounts (as before) plus the active account name.
+  Tap it -> a sheet lists "All accounts" + every enabled account (net P/L, balance, trades). Tap one to switch.
+  The whole Home dashboard (4 cards, Trading Habits, Pair Statistic, Session Activity) follows the chosen account.
+  Choice is remembered on the device (localStorage key te_home_acct). Deleted/disabled account -> falls back to All.
+  Changed: public/index.html only (style#teAcctPick + script#teDash). Backend untouched.

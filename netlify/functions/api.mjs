@@ -635,8 +635,18 @@ function accountFields(b) {
   const name = String(b.name || '').trim();
   const startingBalance = Number(b.startingBalance);
   if (!name || !Number.isFinite(startingBalance)) return null;
+  // optional risk-rule fields (empty = not set); never negative
+  const nn = v => { const n = numOrNull(v); return n === null || n < 0 ? null : n; };
+  const pct = v => { const n = nn(v); return n === null ? null : Math.min(n, 100); };
+  const maxTrades = nn(b.maxTradesPerDay);
+  const minDays = nn(b.minTradingDays);
   return { name, type: oneOf(b.type, ['funded', 'phase', 'live'], 'live'), startingBalance,
     description: String(b.description || '').trim().slice(0, 2000),
+    kind: oneOf(b.kind, ['personal', 'demo', 'prop'], 'personal'),
+    dailyTarget: nn(b.dailyTarget), dailyLossLimit: nn(b.dailyLossLimit),
+    maxDrawdown: pct(b.maxDrawdown), riskPerTrade: pct(b.riskPerTrade),
+    maxTradesPerDay: maxTrades === null ? null : Math.floor(maxTrades),
+    profitTarget: pct(b.profitTarget), minTradingDays: minDays === null ? null : Math.floor(minDays),
     active: b.active === false || b.active === 'false' ? false : true };
 }
 
