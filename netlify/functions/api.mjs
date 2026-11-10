@@ -122,9 +122,9 @@ const emptyDb = () => ({
   hideFromViewers: false,                           // control panel switch: subscribers do not see ETB amounts, notes and screenshots
   payInfo: '',                                      // legacy/general payment instructions
   paymentMethods: [
-    { id: 'bank', region: 'et', accountType: 'Bank transfer', name: 'Ethiopian bank transfer', account: '', instructions: 'Add your Ethiopian bank name and account details in the admin panel.' },
-    { id: 'telebirr', region: 'et', accountType: 'Mobile wallet', name: 'Telebirr', account: '', instructions: 'Add your Telebirr number and payment instructions in the admin panel.' },
-    { id: 'crypto', region: 'intl', accountType: 'Crypto wallet', name: 'Cryptocurrency', account: '', instructions: 'Add your wallet address, network and accepted coins in the admin panel.' }
+    { id: 'bank', region: 'et', accountType: 'Bank transfer', name: 'Ethiopian bank transfer', account: '', image: '', instructions: 'Add your Ethiopian bank name and account details in the admin panel.' },
+    { id: 'telebirr', region: 'et', accountType: 'Mobile wallet', name: 'Telebirr', account: '', image: '', instructions: 'Add your Telebirr number and payment instructions in the admin panel.' },
+    { id: 'crypto', region: 'intl', accountType: 'Crypto wallet', name: 'Cryptocurrency', account: '', image: '', instructions: 'Add your wallet address, network and accepted coins in the admin panel.' }
   ],
   linkTokens: {},                                  // one-time Telegram deep-link tokens
   features: null,                                   // services listed on every plan (null = built-in list); edited in the bot: Plans & prices
@@ -142,6 +142,7 @@ async function loadState() {
   db = Object.assign(emptyDb(), (await store.get('db', { type: 'json' })) || {});
   if (!db.reminder.custom) db.reminder.hour = 6;   // default until you choose another hour with /reminder
   db.paymentMethods = Array.isArray(db.paymentMethods) && db.paymentMethods.length ? db.paymentMethods : emptyDb().paymentMethods;
+  db.paymentMethods = db.paymentMethods.map(m => ({ ...m, image: String(m.image || '') }));
   db.linkTokens = db.linkTokens && typeof db.linkTokens === 'object' ? db.linkTokens : {};
   flowKey = 'flow'; scope = null;
   flow = (await store.get('flow', { type: 'json' })) || null;
@@ -416,18 +417,21 @@ async function subscribe(req, user) {
   const screenshot = filesNamed(files, 'screenshot')[0];
   const screenshotUrl = screenshot ? saveUpload(screenshot) : '';
   const network = String(body.network || '').trim().slice(0, 40);
+  const methodText = ((method?.id || '') + ' ' + (method?.name || '') + ' ' + (method?.accountType || '')).toLowerCase();
+  const isMobile = /telebirr|mobile wallet|mobile money/.test(methodText);
+  const isCrypto = /crypto|usdt|bitcoin|wallet/.test(methodText);
   if (!plan) return bad('Choose a plan');
   if (!method) return bad('Choose a payment method');
   if (!reference) return bad('Enter your payment reference or transaction ID');
-  if (!payerPhone) return bad('Enter the phone number used for payment');
-  if (!payerAccount) return bad('Enter the paying account or wallet');
-  if (method.region === 'intl' && method.id === 'crypto' && !network) return bad('Enter the crypto network used');
+  if (isMobile && !payerPhone) return bad('Enter the Telebirr phone number used for payment');
+  if (!isMobile && !payerAccount) return bad(isCrypto ? 'Enter the crypto wallet address used for payment' : 'Enter the bank account used for payment');
+  if (isCrypto && !network) return bad('Enter the crypto network used');
   db.payments = db.payments.filter(p => !(p.userId === user.id && p.status === 'pending'));
   const pay = { id: newId(), userId: user.id, planId: plan.id, methodId: method.id, methodName: method.name, network, payerPhone, payerAccount, screenshot: screenshotUrl, reference, createdAt: new Date().toISOString(), status: 'pending' };
   db.payments.push(pay);
   save();
   await notifyOwner(
-    `💳 Payment request\n${user.name} (${user.email})\nPlan: ${plan.name} – ${plan.days} days ${plan.price || ''}\nMethod: ${method.name}${network ? ' (' + network + ')' : ''}\nPhone: ${payerPhone}\nPaying account: ${payerAccount}\nReference/TxID: ${reference}${screenshotUrl ? '\nScreenshot attached' : ''}`,
+    `💳 Payment request\n${user.name} (${user.email})\nPlan: ${plan.name} – ${plan.days} days ${plan.price || ''}\nMethod: ${method.name}${network ? ' (' + network + ')' : ''}\n${payerPhone ? 'Phone: ' + payerPhone + '\n' : ''}${payerAccount ? 'Paying account: ' + payerAccount + '\n' : ''}Reference/TxID: ${reference}${screenshotUrl ? '\nScreenshot attached' : ''}`,
     { reply_markup: new InlineKeyboard().text('✅ Approve', 'pay:ok:' + pay.id).text('❌ Reject', 'pay:no:' + pay.id) }
   );
   return json({ ok: true });
@@ -1372,6 +1376,7 @@ async function adminAction(req, body) {
         accountType: String(m.accountType || 'Other').trim().slice(0,60),
         name: String(m.name || '').trim().slice(0,80),
         account: String(m.account || '').trim().slice(0,500),
+        image: String(m.image || '').trim().slice(0,500),
         instructions: String(m.instructions || '').trim().slice(0,1000)
       })).filter(m => m.name && m.instructions);
       if (!db.paymentMethods.length) return bad('Payment method name and instructions are required');
@@ -1449,6 +1454,18 @@ async function api(req, url) {
     const state = accessState(user);
     // in Telegram = full use of their OWN data;  in Chrome = look only
     return state === 'active' ? json({ mode: viaTg && !user.owner ? 'member' : 'viewer', user: publicUser(user) }) : gate(user, state);
+  }
+  if (resource === 'payment-method-image' && method === 'POST') {
+    if (!owner) return json({ error: 'owner access required' }, 403);
+    const { body, files } = await readRequest(req);
+    const methodRec = (db.paymentMethods || []).find(x => x.id === String(body.methodId || '').trim());
+    const image = filesNamed(files, 'image')[0];
+    if (!methodRec) return bad('Payment method not found');
+    if (!image) return bad('Choose a payment QR or account image');
+    if (methodRec.image) removeFile(methodRec.image);
+    methodRec.image = saveUpload(image);
+    save();
+    return json({ ok: true, image: methodRec.image });
   }
   if (resource === 'admin') {
     if (owner) return adminApi(req, url);
