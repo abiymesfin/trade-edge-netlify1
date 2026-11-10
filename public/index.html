@@ -546,7 +546,12 @@
       (hasTg ? window.fetch("/api/session") : original("/api/session"))
         .then(function(r){ return r.json().then(function(j){ return { ok:r.ok, status:r.status, j:j }; }); })
         .then(function(x){
-          if(x.ok){ if(x.j.mode === "viewer" && !hasTg){ enterReadOnly(x.j.user); } }
+          if(x.ok){
+            /* Website email/password sessions can be owner or viewer. Both need the visible logout action. */
+            if(!hasTg && x.j && (x.j.mode === "owner" || x.j.mode === "viewer")){
+              enterReadOnly(x.j.user || { owner: x.j.mode === "owner", name: x.j.mode === "owner" ? "Owner" : "Trader" });
+            }
+          }
           else if(x.status === 401){ if(!hasTg){ showAuth("login"); } }
           else if(x.j && x.j.state){ showSubscribe(x.j); }
         })
