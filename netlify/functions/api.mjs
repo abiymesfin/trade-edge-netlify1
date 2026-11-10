@@ -1457,7 +1457,8 @@ async function api(req, url) {
   const viaTg = who.viaTg;
 
   if (resource === 'session') {
-    if (owner) return json({ mode: 'owner' });
+    // The standalone mobile app uses the same owner website login session.
+    if (owner || (user && user.owner)) return json({ mode: 'owner' });
     if (!user) return json({ error: 'login required' }, 401);
     const state = accessState(user);
     // in Telegram = full use of their OWN data;  in Chrome = look only
@@ -1476,7 +1477,8 @@ async function api(req, url) {
     return json({ ok: true, image: methodRec.image });
   }
   if (resource === 'admin') {
-    if (owner) return adminApi(req, url);
+    // Telegram owner and authenticated owner website sessions may use the full panel.
+    if (owner || (user && user.owner)) return adminApi(req, url);
     // A member / subscriber may open the control panel too, but only to LOOK at their OWN
     // overview, per-model analysis and trades. No editing, no owner tools.
     if (!user) return json({ error: 'login required' }, 401);
