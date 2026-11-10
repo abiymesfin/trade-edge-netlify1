@@ -1191,7 +1191,7 @@ function adminSnapshot() {
     const u = db.users.find(x => x.id === p.userId);
     const plan = db.plans.find(x => x.id === p.planId);
     return { id:p.id, userId:p.userId, userName:u?.name||'', userEmail:u?.email||'', planId:p.planId,
-      planName:plan?.name||'', days:plan?.days||0, price:plan?.price||'', methodName:p.methodName||p.methodId||'', network:p.network||'', payerPhone:p.payerPhone||'', payerAccount:p.payerAccount||'', screenshot:p.screenshot||'', reference:p.reference||'', createdAt:p.createdAt, status:p.status||'pending' };
+      planName:plan?.name||'', days:plan?.days||0, price:plan?.price||'', methodName:p.methodName||p.methodId||'', network:p.network||'', reference:p.reference||'', createdAt:p.createdAt, status:p.status||'pending' };
   });
   const accounts = db.accounts.map(a => ({...a, pnl: accountPnl(a.id), balance: Number(a.startingBalance||0) + accountPnl(a.id)}));
   const models = db.models.map(m => ({...m}));
