@@ -423,9 +423,7 @@ async function subscribe(req, user) {
   if (!plan) return bad('Choose a plan');
   if (!method) return bad('Choose a payment method');
   if (!reference) return bad('Enter your payment reference or transaction ID');
-  if (isMobile && !payerPhone) return bad('Enter the Telebirr phone number used for payment');
-  if (!isMobile && !payerAccount) return bad(isCrypto ? 'Enter the crypto wallet address used for payment' : 'Enter the bank account used for payment');
-  if (isCrypto && !network) return bad('Enter the crypto network used');
+  if (!payerPhone) return bad('Enter the phone number used for payment');
   db.payments = db.payments.filter(p => !(p.userId === user.id && p.status === 'pending'));
   const pay = { id: newId(), userId: user.id, planId: plan.id, methodId: method.id, methodName: method.name, network, payerPhone, payerAccount, screenshot: screenshotUrl, reference, createdAt: new Date().toISOString(), status: 'pending' };
   db.payments.push(pay);
