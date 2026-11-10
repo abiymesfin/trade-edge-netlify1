@@ -407,7 +407,7 @@ async function login(req) {
 
 async function subscribe(req, user) {
   if (user.blocked) return gate(user, 'blocked');
-  const { body } = await readRequest(req);
+  const { body, files } = await readRequest(req);
   const plan = db.plans.find(p => p.id === String(body.planId || ''));
   const methodId = String(body.methodId || '').trim();
   const method = (db.paymentMethods || []).find(x => x.id === methodId);
