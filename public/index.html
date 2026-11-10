@@ -250,10 +250,10 @@
       document.title = "Trade Edge — Plans & Pricing";
       var card = openOverlay(true);
       var bk = mk("button", "← Back · ተመለስ", "position:absolute;top:16px;left:16px;padding:10px 16px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.07);color:#fff;font-size:14px;font-weight:600;cursor:pointer");
-      bk.onclick = function(){ showAuth("login"); };
+      bk.onclick = function(){ if(overlay){ overlay.remove(); overlay = null; } document.title = "Trade Edge — Trading Journal"; };
       overlay.appendChild(bk);
-      var si = mk("button", "Sign in · ግባ", "position:absolute;top:16px;right:16px;padding:10px 18px;border:0;border-radius:999px;background:linear-gradient(180deg,#0f6b3a,#0a4a28);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(25,177,96,.4)");
-      si.onclick = function(){ showAuth("login"); };
+      var si = mk("button", "Close · ዝጋ", "position:absolute;top:16px;right:16px;padding:10px 18px;border:0;border-radius:999px;background:linear-gradient(180deg,#0f6b3a,#0a4a28);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(25,177,96,.4)");
+      si.onclick = function(){ if(overlay){ overlay.remove(); overlay = null; } document.title = "Trade Edge — Trading Journal"; };
       overlay.appendChild(si);
       var head = mk("div", "", "margin:8px 0 34px");
       head.appendChild(mk("div", "PRICING · ዋጋ", "display:inline-block;font-size:12px;letter-spacing:.14em;font-weight:700;color:#19b160;border:1px solid rgba(25,177,96,.4);background:rgba(25,177,96,.1);padding:7px 14px;border-radius:999px;margin-bottom:18px"));
@@ -2975,6 +2975,11 @@ a,button,.nav-link,.mobile-nav-link{touch-action:manipulation}
     @media(max-width:600px){.profile-card{padding:17px;gap:12px}.profile-avatar{width:48px;height:48px;border-radius:15px;font-size:20px}.profile-copy h2{font-size:18px}.profile-email{max-width:190px}}
     html[data-theme="light"] .ad-bar-n,html[data-theme="light"] .ad-heat tbody th,html[data-theme="light"] .ad-legend b,html[data-theme="light"] .ad-heat td,html[data-theme="light"] .ad-lv b{color:var(--text)!important}
     html[data-theme="light"] .ad-bar-t,html[data-theme="light"] .ad-bs-t{background:rgba(0,0,0,.08)}
+    .an-kpi>.k,.an-sub span,.an-h small{min-width:0;overflow:visible;white-space:normal}
+    .an-kpi>.k{line-height:1.35}
+    .ad-bar-n{white-space:normal;line-height:1.2;overflow:visible;text-overflow:clip}
+    .ad-bar,.ad-bs{min-width:0}
+    @media(max-width:860px){.ad-bar{grid-template-columns:minmax(0,88px) 1fr 48px}.ad-bs{grid-template-columns:minmax(0,88px) 1fr 68px}}
   </style>
   <style id="teAnalytics">
 .an-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px}
@@ -5814,7 +5819,7 @@ function renderNews(){
 document.addEventListener("click", event => {
   const toggle = event.target.closest && event.target.closest("[data-news-toggle]");
   if(!toggle){ return; }
-  event.preventDefault(); event.stopPropagation();
+  event.preventDefault(); event.stopImmediatePropagation();
   state.newsAll = !(state.newsAll === true);
   renderNews();
   if(typeof renderAnalysisNews === "function"){ renderAnalysisNews(); }
@@ -9330,6 +9335,15 @@ window.TE_HEADLINES = (function(){
 #headlinesBox .hp-go{color:#6c6c78;transition:color .15s,transform .15s}
 #headlinesBox .hp-empty{padding:22px 20px;font-size:13px;color:#a3a3ae;line-height:1.6;text-align:center}
 #headlinesBox .hp-foot{padding:10px 20px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:#7d7d89;text-align:center}
+html[data-theme="light"] #headlinesBox .hp-head{border-color:var(--te-line);background:linear-gradient(180deg,rgba(25,177,96,.06),transparent)}
+html[data-theme="light"] #headlinesBox .hp-title{color:var(--te-ink)}
+html[data-theme="light"] #headlinesBox .hp-item{border-color:var(--te-line);color:var(--te-ink)}
+html[data-theme="light"] #headlinesBox .hp-text{color:var(--te-ink)}
+html[data-theme="light"] #headlinesBox .hp-meta{color:var(--te-mut)}
+html[data-theme="light"] #headlinesBox .hp-foot{border-color:var(--te-line);color:var(--te-mut)}
+html[data-theme="light"] .news-title,html[data-theme="light"] .news-main,html[data-theme="light"] .news-meta,html[data-theme="light"] .news-time{color:var(--text)!important}
+html[data-theme="light"] .news-meta,html[data-theme="light"] .news-time{color:var(--muted)!important}
+html[data-theme="light"] .news-more-btn{color:var(--te-br)!important;border-color:var(--te-line)!important;background:var(--te-soft)!important}
 @media(max-width:480px){#headlinesBox .hp-item{grid-template-columns:34px 1fr 16px;gap:11px;padding:13px 14px}#headlinesBox .hp-badge{width:34px;height:34px;font-size:13px;border-radius:10px}#headlinesBox .hp-head{padding:14px}#headlinesBox .hp-foot{padding:10px 14px 12px}}`;
     document.head.appendChild(css);
   })();
@@ -9905,6 +9919,8 @@ document.addEventListener("click", event => {
   function pctChange(cur, prev){
     if(!isFinite(cur) || !isFinite(prev)){ return null; }
     if(prev === 0){ return cur === 0 ? null : "new"; }
+    /* A sign change is a new direction, not a normal percentage change. */
+    if((cur > 0 && prev < 0) || (cur < 0 && prev > 0)){ return "new"; }
     return (cur - prev) / Math.abs(prev) * 100;
   }
 
