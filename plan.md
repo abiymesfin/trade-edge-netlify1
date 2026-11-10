@@ -1,49 +1,26 @@
-# Trade Edge ሙሉ ማሻሻያ እቅድ
+# Trade Edge ማሻሻያ እቅድ
 
-## መሠረታዊ ውሳኔ
+## የተመረጠው አቀራረብ
 
-የአሁኑ Trade Edge ዲዛይን አይቀየርም። አዲስ feature ሁሉ አሁን ባለው dark/light theme፣navigation፣cards፣typography እና mobile layout ውስጥ ብቻ ይጨመራል። Backend፣Telegram bot፣authentication፣payment approval እና የተጠቃሚ ውሂብ አይሰረዝም አይresetም።
+- **የእይታ አቀራረብ:** ያለውን dark/orange Trade Edge ብራንድ ሳይቀይር ግልጽ የሆነ የsetup እና payment flow።
+- **የመግቢያ ፍልስፍና:** የwebsite መመዝገብ ከተጠናቀቀ በኋላ ኢሜልና ፓስወርድ እንደገና ሳይጻፉ አንድ-ጊዜ የሚሰራ Telegram deep-link።
+- **የክፍያ ፍልስፍና:** በአካባቢ የEthiopia bank/Telebirr እና በውጭ የcrypto መንገድ በአንድ የpayment request ፍሰት፣ ከadmin ሊስተካከል የሚችል መመሪያ ጋር።
 
-## ያለው ሲስተም ግኝት
+## Implementation
 
-- `public/index.html` ውስጥ ዋና website፣dashboard፣market analysis፣accounts፣models፣journal እና analytics አሉ።
-- `public/admin/index.html` የTelegram Mini App owner/member control panel ነው።
-- `netlify/functions/api.mjs` የauthentication፣Telegram identity፣scoped user data፣accounts/models/journal፣payments እና market/news API ያስተዳድራል።
-- `netlify/functions/analysis-engine.mjs` የpair analysis እና report helpers ነው።
-- Storage በNetlify Blobs ላይ ነው፤ ስለዚህ migration ሁሉ additive ይሆናል።
-- MT5፣broker connection ወይም paid market data አይጨመርም።
+- `public/index.html` የTelegram Mini App signed init dataን ለPOST ጥያቄዎች ያስተላልፋል፣ ከsignup በኋላ 15-ደቂቃ የሚሰራ one-time Telegram link ያሳያል።
+- `netlify/functions/api.mjs` የlink token ፍጠራ/መጠቀም፣ Telegram `/start link_...` auto-connect፣ `SameSite=None; Secure` session cookie፣ የbank/Telebirr/crypto payment method ማረጋገጫ እና የpayment record ያክላል።
+- `public/admin/index.html` ባለቤቱ የpayment method ስምና መመሪያ እንዲያስተካክል ያደርጋል። ይህ አሁን manual approval ነው፤ የbank/Telebirr/crypto provider API ማስገባት ከprovider credentials ጋር በቀጣይ ይደረጋል።
 
-## ደረጃ 1 — Actual-data Dashboard እና Analytics
+## የፕሮጀክት መዋቅር
 
-Dashboard ላይ ካሉ የjournal records ብቻ ተጠቅሞ Total P/L፣win rate፣profit factor፣average win/loss፣expectancy፣risk/reward፣drawdown፣trades today፣daily target/limit እና account filter ይጨመራሉ። የሌለ ውሂብ እንደ ሐሰተኛ live value አይታይም።
+- `public/index.html`: public website, authentication, subscription/payment UI, Telegram connection UX.
+- `public/admin/index.html`: owner control panel and payment-method configuration.
+- `netlify/functions/api.mjs`: Netlify API, Telegram bot/webhook, sessions, payment requests and data storage.
+- `netlify/functions/analysis-engine.mjs`: trading analysis helpers.
 
-## ደረጃ 2 — Accounts እና Risk Center
+## Telegram control-panel upgrade
 
-Account type፣starting/current balance፣equity፣daily target፣daily loss limit፣overall drawdown፣risk per trade እና max trades/day እንደ additive fields ይጨመራሉ። በዚህ መሠረት የrisk calculator እና prop-firm progress ይሰራሉ።
+The Telegram Mini App control panel keeps its existing owner/member permissions and data actions, but now uses a light-first workspace with an optional dark mode toggle. The navigation remains horizontally scrollable on small screens and the layout uses clearer sections, status badges, a stronger header, and calmer light surfaces for daily administration.
 
-## ደረጃ 3 — Journal እና Strategy Playbook
-
-ያለውን manual journal ሳይበላሽ advanced entry/exit፣position፣risk፣session፣setup፣psychology፣mistake tags፣rule adherence፣partial close እና multiple-entry metadata ይጨመራሉ። Models ወደ strategy playbook ይሻሻላሉ እና journal records ጋር ይያያዛሉ።
-
-## ደረጃ 4 — Market Intelligence
-
-ያለው market/news data ብቻ ይጠቀማል። D1/H4/H1/M15/M5፣market structure፣BOS/CHoCH፣FVG፣liquidity፣support/resistance፣sessions፣sentiment እና XAUUSD ይጨመራሉ ብቻ አስተማማኝ free source ካለ። ካልነበረ በግልጽ unavailable ይላል።
-
-## ደረጃ 5 — AI Coach እና Discipline
-
-AI Coach የሚጠቀመው የuser እውነተኛ journal data ብቻ ነው። overtrading፣revenge trading፣risk እና strategy performance ላይ ሪፖርት ይሰጣል። Discipline center ደግሞ goals፣checklist፣emotion፣mistakes፣no-trade days እና warnings ይይዛል።
-
-## ደረጃ 6 — Backtesting እና Reports
-
-Manual backtesting records፣strategy comparison፣win rate፣profit factor፣drawdown እና saved sessions ይጨመራሉ። Daily/weekly/monthly/account/strategy/risk reports በCSV እና በትክክለኛ የተቀናጀ PDF ይወጣሉ።
-
-## ደረጃ 7 — Notifications እና quality verification
-
-Daily loss limit፣profit target፣excessive risk፣consecutive losses እና weekly/monthly summary notifications ይጨመራሉ። እያንዳንዱ ደረጃ ከauthentication፣user isolation፣Telegram፣payment፣mobile responsiveness እና existing data ጋር ይፈተናል።
-
-## የዲዛይን መመሪያ
-
-- የአሁኑ layout እና visual identity አይቀየሩም።
-- አዲስ cards/controls ያሉትን CSS variables፣spacing እና component patterns ይጠቀማሉ።
-- ስራ የማይሰራ button አይጨመርም።
-- የሌለ ውሂብ አይፈጠርም።
+Payment configuration is additive. The owner can add, edit, or remove up to ten payment accounts from the Plans section. Each account has a region (Ethiopia or International), a customer-facing name, and multiline instructions for bank name, account holder, account/phone number, wallet address, accepted coin, or network such as TRC20/ERC20. Existing payment methods are preserved until the owner explicitly saves the account list.

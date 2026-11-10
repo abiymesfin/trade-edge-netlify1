@@ -3277,6 +3277,8 @@ html[data-theme="dark"] .sess-row .bar b{background:var(--te-br)}
           Journal
         </a>
 
+        <a class="nav-link" href="#advanced" data-page="advanced"><span class="nav-ico">◈</span> Advanced</a>
+
       </nav>
 
       <!-- SIDEBAR PROMO (shown on the website only, when plans exist) -->
@@ -4134,6 +4136,11 @@ html[data-theme="dark"] .sess-row .bar b{background:var(--te-br)}
       <div class="jr-grid" id="jrGrid"></div>
     </section>
 
+  </main>
+
+  <main class="main" id="view-advanced" hidden>
+    <div class="page-head"><div><div class="eyebrow">TRADE EDGE WORKSPACE</div><h1 class="page-title">Advanced trading center.</h1><p class="page-subtitle">Risk, discipline, coach, backtesting and reports from your saved journal.</p></div><button class="acc-btn ghost" id="teAdvancedRefresh" type="button">Refresh data</button></div>
+    <section class="section te-adv-section"><div class="te-adv-tabs" role="tablist"><button class="te-adv-tab active" data-adv-tab="overview">Overview</button><button class="te-adv-tab" data-adv-tab="risk">Risk calculator</button><button class="te-adv-tab" data-adv-tab="coach">AI coach</button><button class="te-adv-tab" data-adv-tab="backtest">Backtesting</button><button class="te-adv-tab" data-adv-tab="discipline">Discipline</button><button class="te-adv-tab" data-adv-tab="reports">Reports</button></div><div id="teAdvancedBody"></div></section>
   </main>
 
   <!-- TRADE DETAIL -->
@@ -5631,16 +5638,9 @@ function renderAccount(){
   const items = [
     { label:t("hBalance"),    value:"$" + formatCurrency(acc.balance) },
     { label:t("hNetPnl"),     value:usd(acc.net) },
-    { label:t("hTotalLoss"),  value:acc.totalLoss > 0 ? "-$" + formatCurrency(acc.totalLoss) : "$0" },
     { label:t("hTodayPnl"),   value:usd(acc.todayPnl) },
-    { label:t("hMaxDrawdown"),value:Number.isFinite(acc.maxDrawdown) ? formatNumber(acc.maxDrawdown, 2) + "%" : "—" },
+    { label:t("hDrawdown"),   value:Number.isFinite(acc.drawdown) ? formatNumber(acc.drawdown, 2) + "%" : "—" },
     { label:t("hWinRate"),    value:Number.isFinite(acc.winRate) ? formatNumber(acc.winRate, 0) + "%" : "—" },
-    { label:t("hProfitFactor"),value:Number.isFinite(acc.profitFactor) ? formatNumber(acc.profitFactor, 2) : "—" },
-    { label:t("hExpectancy"), value:Number.isFinite(acc.expectancy) ? usd(acc.expectancy) : "—" },
-    { label:t("hAvgWin"),     value:Number.isFinite(acc.averageWin) ? "+$" + formatCurrency(acc.averageWin) : "—" },
-    { label:t("hAvgLoss"),    value:Number.isFinite(acc.averageLoss) ? "-$" + formatCurrency(acc.averageLoss) : "—" },
-    { label:t("hAvgRR"),      value:Number.isFinite(acc.averageRR) ? formatNumber(acc.averageRR, 2) + "R" : "—" },
-    { label:t("hTrades"),     value:formatNumber(acc.totalTrades, 0) },
     { label:t("hOpenTrades"), value:formatNumber(acc.openTrades, 0) }
   ];
 
@@ -6002,8 +6002,8 @@ Object.assign(translations.en,{
   lblEntry:"Entry", lblRR:"Risk / Reward", lblStrategy:"Strategy", lblDate:"Date", lblPL:"P/L",
   condition:"Condition", dataSource:"Data source", updated:"Updated",
   condBullish:"Bullish", condBearish:"Bearish", condNeutral:"Neutral",
-  hBalance:"Balance", hNetPnl:"Net P/L", hTotalLoss:"Total loss", hTodayPnl:"Today P/L", hDrawdown:"Drawdown", hMaxDrawdown:"Max drawdown",
-  hWinRate:"Win Rate", hOpenTrades:"Open Trades", hTrades:"Total trades", hProfitFactor:"Profit Factor", hExpectancy:"Expectancy", hAvgWin:"Average win", hAvgLoss:"Average loss", hAvgRR:"Average R:R",
+  hBalance:"Balance", hNetPnl:"Net P/L", hTodayPnl:"Today P/L", hDrawdown:"Drawdown",
+  hWinRate:"Win Rate", hOpenTrades:"Open Trades", hTrades:"Trades", hProfitFactor:"Profit Factor",
   sesTokyo:"Tokyo", sesLondon:"London", sesNewYork:"New York",
   sesLondonNewYork:"London / New York",
   sesOpen:"Open", sesClosed:"Closed", sesOpensIn:"Opens in", sesClosesIn:"Closes in",
@@ -6019,8 +6019,8 @@ Object.assign(translations.am,{
   lblEntry:"ኢንትሪ", lblRR:"ስጋት / ትርፍ", lblStrategy:"ስትራቴጂ", lblDate:"ቀን", lblPL:"ትርፍ/ኪሳራ",
   condition:"የገበያ ሁኔታ", dataSource:"የዳታ ምንጭ", updated:"ተዘምኗል",
   condBullish:"ወደ ላይ", condBearish:"ወደ ታች", condNeutral:"ገለልተኛ",
-  hBalance:"ሒሳብ", hNetPnl:"የተጣራ ትርፍ/ኪሳራ", hTotalLoss:"ጠቅላላ ኪሳራ", hTodayPnl:"የዛሬ ትርፍ/ኪሳራ", hDrawdown:"ድሮውዳውን", hMaxDrawdown:"ከፍተኛ ድሮውዳውን",
-  hWinRate:"የማሸነፍ መጠን", hOpenTrades:"ክፍት trades", hTrades:"ጠቅላላ trades", hProfitFactor:"ፕሮፊት ፋክተር", hExpectancy:"Expectancy", hAvgWin:"አማካይ አሸናፊ", hAvgLoss:"አማካይ ኪሳራ", hAvgRR:"አማካይ R:R",
+  hBalance:"ሒሳብ", hNetPnl:"የተጣራ ትርፍ/ኪሳራ", hTodayPnl:"የዛሬ ትርፍ/ኪሳራ", hDrawdown:"ድሮውዳውን",
+  hWinRate:"የማሸነፍ መጠን", hOpenTrades:"ክፍት trades", hTrades:"Trades", hProfitFactor:"ፕሮፊት ፋክተር",
   sesTokyo:"ቶኪዮ", sesLondon:"ለንደን", sesNewYork:"ኒው ዮርክ",
   sesLondonNewYork:"ለንደን / ኒው ዮርክ",
   sesOpen:"ክፍት", sesClosed:"ዝግ", sesOpensIn:"ሊከፈት የቀረው", sesClosesIn:"ሊዘጋ የቀረው",
@@ -6154,8 +6154,7 @@ function deriveHome(){
     const todayKey = new Date().toDateString();
 
     let net = 0, todayPnl = 0, wins = 0, losses = 0, open = 0;
-    let grossWin = 0, grossLoss = 0, rrTotal = 0, rrCount = 0;
-    let equity = start, peak = start, maxDrawdown = 0;
+    let equity = start, peak = start, drawdown = 0;
 
     byDateAsc.forEach(trade => {
       const result = TE_DATA.resultOf(trade);
@@ -6167,30 +6166,18 @@ function deriveHome(){
       if(pnl === null){ return; }
 
       net += pnl;
-      if(pnl > 0){ grossWin += pnl; }
-      if(pnl < 0){ grossLoss += Math.abs(pnl); }
-      const rrValue = Number(trade.rr ?? trade.riskReward ?? trade.rMultiple);
-      if(Number.isFinite(rrValue)){ rrTotal += rrValue; rrCount++; }
       equity += pnl;
       peak = Math.max(peak, equity);
-      if(peak > 0){ maxDrawdown = Math.max(maxDrawdown, (peak - equity) / peak * 100); }
+      if(peak > 0){ drawdown = Math.min(drawdown, (equity - peak) / peak * 100); }
       if(new Date(trade.createdAt).toDateString() === todayKey){ todayPnl += pnl; }
     });
 
     state.account = {
       balance:start + net,
       net,
-      totalLoss:grossLoss,
       todayPnl,
-      drawdown:maxDrawdown,
-      maxDrawdown,
+      drawdown,
       winRate:(wins + losses) ? wins / (wins + losses) * 100 : NaN,
-      profitFactor:grossLoss > 0 ? grossWin / grossLoss : (grossWin > 0 ? Infinity : NaN),
-      expectancy:(wins + losses) ? (grossWin - grossLoss) / (wins + losses) : NaN,
-      averageWin:wins ? grossWin / wins : NaN,
-      averageLoss:losses ? grossLoss / losses : NaN,
-      averageRR:rrCount ? rrTotal / rrCount : NaN,
-      totalTrades:live.length,
       openTrades:open
     };
   }
@@ -9663,6 +9650,29 @@ document.addEventListener("click", event => {
     document.querySelectorAll(".lang-btn").forEach(function(b){ b.addEventListener("click", function(){ setTimeout(renderAll, 0); }); });
   });
   document.addEventListener("te:render", renderAll);
+})();
+</script>
+<style id="teAdvancedStyle">
+.te-adv-section{padding-bottom:40px}.te-adv-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.te-adv-tab{border:1px solid var(--line,rgba(255,255,255,.12));background:var(--panel,rgba(255,255,255,.04));color:inherit;border-radius:12px;padding:10px 14px;cursor:pointer}.te-adv-tab.active{background:var(--accent,#19b160);color:#fff;border-color:transparent}.te-adv-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.te-adv-card{border:1px solid var(--line,rgba(255,255,255,.12));background:var(--panel,rgba(255,255,255,.04));border-radius:16px;padding:16px}.te-adv-card h3{margin:0 0 9px;font-size:13px;opacity:.72}.te-adv-value{font-size:25px;font-weight:800}.te-adv-muted{opacity:.68;font-size:13px}.te-adv-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.te-adv-form label{display:flex;flex-direction:column;gap:6px;font-size:13px}.te-adv-form input,.te-adv-form select,.te-adv-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line,rgba(255,255,255,.14));border-radius:10px;padding:10px;background:transparent;color:inherit}.te-adv-form textarea{min-height:110px;grid-column:1/-1}.te-adv-actions{display:flex;gap:10px;align-items:center;margin-top:14px}.te-adv-list{display:grid;gap:10px;margin-top:15px}.te-adv-row{display:flex;justify-content:space-between;gap:14px;padding:12px;border-bottom:1px solid var(--line,rgba(255,255,255,.1))}.te-adv-good{color:var(--green,#19b160)}.te-adv-bad{color:var(--red,#f06464)}@media(max-width:800px){.te-adv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.te-adv-form{grid-template-columns:1fr 1fr}}@media(max-width:520px){.te-adv-grid,.te-adv-form{grid-template-columns:1fr}.te-adv-tab{flex:1 1 44%}.te-adv-row{display:block}}
+</style>
+<script id="teAdvancedApp">
+(function(){
+  const $=s=>document.querySelector(s), esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=v=>v==null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('en-US',{maximumFractionDigits:2});
+  const api=(url,opt)=>fetch(url,Object.assign({credentials:'include',headers:{'Content-Type':'application/json'}},opt||{})).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j;});
+  let active='overview', summary=null;
+  function card(label,value,sub){return `<div class="te-adv-card"><h3>${esc(label)}</h3><div class="te-adv-value">${esc(value)}</div>${sub?`<div class="te-adv-muted">${esc(sub)}</div>`:''}</div>`}
+  function renderOverview(){const s=summary&&summary.stats;if(!s)return '<div class="te-adv-card">No journal data available yet.</div>';return `<div class="te-adv-grid">${card('Net profit',money(s.netProfit),'Closed trades only')}${card('Win rate',s.winRate==null?'—':s.winRate.toFixed(1)+'%',`${s.winningTrades} wins / ${s.losingTrades} losses`)}${card('Profit factor',s.profitFactor==null?'—':s.profitFactor===Infinity?'∞':s.profitFactor.toFixed(2),'Gross profit ÷ gross loss')}${card('Expectancy',money(s.expectancy),'Average result per trade')}${card('Maximum drawdown',money(s.maxDrawdown),'Peak-to-trough')}${card('Average R:R',s.averageRiskReward==null?'—':s.averageRiskReward.toFixed(2),'From saved journal values')}${card('Total trades',s.totalTrades,'Closed trades')}${card('Today P/L',money(summary.daily[new Date().toISOString().slice(0,10)]||0),'Saved journal records')}</div><div class="te-adv-card" style="margin-top:12px"><h3>Monthly performance</h3><div class="te-adv-list">${Object.entries(summary.monthly).sort().reverse().slice(0,12).map(([m,v])=>`<div class="te-adv-row"><span>${esc(m)}</span><b class="${v>=0?'te-adv-good':'te-adv-bad'}">${money(v)}</b></div>`).join('')||'<span class="te-adv-muted">No closed trades yet.</span>'}</div></div>`}
+  function renderRisk(){return `<div class="te-adv-card"><h3>Position sizing calculator</h3><div class="te-adv-muted">XAUUSD uses a 100-unit contract assumption. Unsupported instruments return no lot size.</div><form class="te-adv-form" id="teRiskForm"><label>Balance<input name="balance" type="number" step="any" required></label><label>Risk %<input name="riskPercent" type="number" step="any" required></label><label>Instrument<input name="instrument" value="XAUUSD" required></label><label>Entry price<input name="entry" type="number" step="any" required></label><label>Stop loss<input name="stopLoss" type="number" step="any" required></label><label>Take profit<input name="takeProfit" type="number" step="any"></label><div class="te-adv-actions"><button class="acc-btn" type="submit">Calculate</button><span id="teRiskResult" class="te-adv-muted"></span></div></form></div>`}
+  function renderCoach(){return `<div class="te-adv-card"><h3>Journal-based AI coach</h3><div id="teCoachResult">Loading recommendations…</div></div>`}
+  function renderBacktest(){return `<div class="te-adv-card"><h3>Save a manual backtest</h3><div class="te-adv-muted">Enter one JSON array of trades with pnl and optional riskReward fields. The result is calculated from your submitted records.</div><form class="te-adv-form" id="teBacktestForm"><label>Session name<input name="name" required></label><textarea name="trades" placeholder='[{"pnl":100,"riskReward":2},{"pnl":-50,"riskReward":1}]' required></textarea><div class="te-adv-actions"><button class="acc-btn" type="submit">Save backtest</button><span id="teBacktestResult" class="te-adv-muted"></span></div></form></div><div id="teBacktestList" class="te-adv-list"></div>`}
+  function renderDiscipline(){return `<div class="te-adv-card"><h3>Daily discipline log</h3><form class="te-adv-form" id="teDisciplineForm"><label>Date<input name="date" type="date" value="${new Date().toISOString().slice(0,10)}" required></label><label>Score (0–100)<input name="score" type="number" min="0" max="100" required></label><label>Emotional state<input name="emotionalState" placeholder="Calm, stressed…"></label><textarea name="notes" placeholder="Daily notes"></textarea><label><input name="noTradeDay" type="checkbox"> No-trade day</label><div class="te-adv-actions"><button class="acc-btn" type="submit">Save discipline</button><span id="teDisciplineResult" class="te-adv-muted"></span></div></form></div><div id="teDisciplineList" class="te-adv-list"></div>`}
+  function renderReports(){return `<div class="te-adv-card"><h3>Reports</h3><p class="te-adv-muted">Export the currently calculated journal summary as CSV. No raw code or fake values are exported.</p><button class="acc-btn" id="teExportCsv">Export CSV</button></div>`}
+  async function render(){const body=$('#teAdvancedBody');if(!body)return;document.querySelectorAll('.te-adv-tab').forEach(b=>b.classList.toggle('active',b.dataset.advTab===active));if(active==='overview'){summary=await api('/api/advanced/summary');body.innerHTML=renderOverview()}else if(active==='risk')body.innerHTML=renderRisk();else if(active==='coach'){body.innerHTML=renderCoach();const j=await api('/api/advanced/coach');$('#teCoachResult').innerHTML=j.available?`<div class="te-adv-list">${j.recommendations.map(x=>`<div class="te-adv-row">${esc(x)}</div>`).join('')}</div>`:`<span class="te-adv-muted">${esc(j.message)}</span>`}else if(active==='backtest'){body.innerHTML=renderBacktest();const j=await api('/api/advanced/backtests');$('#teBacktestList').innerHTML=(j.items||[]).map(x=>`<div class="te-adv-card"><b>${esc(x.name)}</b><span class="te-adv-muted"> · ${esc(x.createdAt.slice(0,10))}</span><div>Net: ${money(x.stats.netProfit)} · Win rate: ${x.stats.winRate==null?'—':x.stats.winRate.toFixed(1)+'%'}</div></div>`).join('')||'<span class="te-adv-muted">No saved backtests.</span>'}else if(active==='discipline'){body.innerHTML=renderDiscipline();const j=await api('/api/advanced/discipline');$('#teDisciplineList').innerHTML=(j.items||[]).slice(0,20).map(x=>`<div class="te-adv-row"><span>${esc(x.date)} · ${esc(x.emotionalState||'—')}</span><b>${esc(x.score)}/100</b></div>`).join('')||'<span class="te-adv-muted">No discipline entries.</span>'}else body.innerHTML=renderReports()}
+  document.addEventListener('click',e=>{const tab=e.target.closest('[data-adv-tab]');if(tab){active=tab.dataset.advTab;render()}if(e.target.id==='teAdvancedRefresh')render();if(e.target.id==='teExportCsv'&&summary){const rows=[['metric','value'],['netProfit',summary.stats.netProfit],['totalTrades',summary.stats.totalTrades],['winningTrades',summary.stats.winningTrades],['losingTrades',summary.stats.losingTrades],['winRate',summary.stats.winRate],['profitFactor',summary.stats.profitFactor],['maxDrawdown',summary.stats.maxDrawdown]];const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trade-edge-report.csv';a.click();URL.revokeObjectURL(a.href)}});
+  document.addEventListener('submit',async e=>{if(e.target.id==='teRiskForm'){e.preventDefault();const f=new FormData(e.target),o=Object.fromEntries(f.entries());try{const r=await api('/api/advanced/risk',{method:'POST',body:JSON.stringify(o)});$('#teRiskResult').textContent=`Risk: ${money(r.riskAmount)} · Lot: ${r.positionSize==null?'Unavailable':r.positionSize.toFixed(4)} · R:R: ${r.riskReward==null?'—':r.riskReward.toFixed(2)} · ${r.assumptions}`}catch(x){$('#teRiskResult').textContent=x.message}}if(e.target.id==='teBacktestForm'){e.preventDefault();try{const f=new FormData(e.target),r=await api('/api/advanced/backtests',{method:'POST',body:JSON.stringify({name:f.get('name'),trades:JSON.parse(f.get('trades'))})});$('#teBacktestResult').textContent=`Saved. Net result: ${money(r.stats.netProfit)}`;render()}catch(x){$('#teBacktestResult').textContent=x.message}}if(e.target.id==='teDisciplineForm'){e.preventDefault();const f=new FormData(e.target);const r=await api('/api/advanced/discipline',{method:'POST',body:JSON.stringify({date:f.get('date'),score:f.get('score'),emotionalState:f.get('emotionalState'),notes:f.get('notes'),noTradeDay:f.get('noTradeDay')==='on'})});$('#teDisciplineResult').textContent=`Saved ${r.date}`;render()}});
+  function init(){window.TE_VIEWS=window.TE_VIEWS||{};window.TE_VIEWS.advanced='#view-advanced';const mobile=document.querySelector('.mobile-nav-inner');if(mobile&&!mobile.querySelector('[data-page="advanced"]')){const a=document.createElement('a');a.href='#advanced';a.dataset.page='advanced';a.className='mobile-nav-link';a.textContent='Advanced';a.addEventListener('click',()=>{history.replaceState(null,'','#advanced');Object.entries(window.TE_VIEWS).forEach(([k,s])=>{const n=document.querySelector(s);if(n)n.hidden=k!=='advanced'});const h=document.querySelector('#home');if(h)h.hidden=true;render()});mobile.appendChild(a)};if(location.hash==='#advanced'){document.querySelector('#home').hidden=true;document.querySelector('#view-advanced').hidden=false;render()}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
 </body>

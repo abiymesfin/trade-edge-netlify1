@@ -134,7 +134,10 @@ const emptyDb = () => ({
   signups: [],                                      // sign-up times (spam limit)
   loginAttempts: {},                                // short lockouts keyed by email + client IP (never the account itself)
   // Monday reminder. 06:00 on the standard clock = 12:00 ጠዋት (Ethiopian clock), time zone UTC+3
-  reminder: { enabled: true, hour: 6, utcOffset: 3, lastSent: '', custom: false }
+  reminder: { enabled: true, hour: 6, utcOffset: 3, lastSent: '', custom: false },
+  backtests: [],
+  discipline: [],
+  reportSettings: { dailyLossLimit: null, dailyProfitTarget: null }
 });
 
 async function loadState() {
@@ -169,18 +172,18 @@ async function flushState() {
    request, so all the existing code (bot forms, website API) works unchanged on their data.
    leaveScope() puts everything back (it runs at the end of every request).
 --------------------------------------------------------- */
-const emptyUserData = () => ({ accounts: [], models: [], trades: [], pairs: [], pairsUpdatedAt: null });
+const emptyUserData = () => ({ accounts: [], models: [], trades: [], pairs: [], pairsUpdatedAt: null, backtests: [], discipline: [], reportSettings: { dailyLossLimit: null, dailyProfitTarget: null } });
 function enterScope(uid) {
   if (scope || !uid) return;
   db.userData = db.userData || {};
   const ud = db.userData[uid] || (db.userData[uid] = Object.assign(emptyUserData(), {}));
-  scope = { uid, ud, saved: { accounts: db.accounts, models: db.models, trades: db.trades, pairs: db.pairs, pairsUpdatedAt: db.pairsUpdatedAt } };
-  db.accounts = ud.accounts; db.models = ud.models; db.trades = ud.trades; db.pairs = ud.pairs; db.pairsUpdatedAt = ud.pairsUpdatedAt;
+  scope = { uid, ud, saved: { accounts: db.accounts, models: db.models, trades: db.trades, pairs: db.pairs, pairsUpdatedAt: db.pairsUpdatedAt, backtests: db.backtests, discipline: db.discipline, reportSettings: db.reportSettings } };
+  db.accounts = ud.accounts; db.models = ud.models; db.trades = ud.trades; db.pairs = ud.pairs; db.pairsUpdatedAt = ud.pairsUpdatedAt; db.backtests = ud.backtests; db.discipline = ud.discipline; db.reportSettings = ud.reportSettings;
 }
 function leaveScope() {
   if (!scope) return;
   const { ud, saved } = scope;
-  ud.accounts = db.accounts; ud.models = db.models; ud.trades = db.trades; ud.pairs = db.pairs; ud.pairsUpdatedAt = db.pairsUpdatedAt;
+  ud.accounts = db.accounts; ud.models = db.models; ud.trades = db.trades; ud.pairs = db.pairs; ud.pairsUpdatedAt = db.pairsUpdatedAt; ud.backtests = db.backtests; ud.discipline = db.discipline; ud.reportSettings = db.reportSettings;
   Object.assign(db, saved);
   scope = null;
 }
@@ -1423,6 +1426,80 @@ async function adminApi(req, url) {
   return text('method not allowed', 405);
 }
 
+/* ---------------------------------------------------------
+   ADVANCED TRADING WORKSPACE
+   All values below are derived from the user's saved records.
+   No market or performance values are fabricated.
+--------------------------------------------------------- */
+const advNum = v => (v === '' || v == null || !Number.isFinite(Number(v)) ? null : Number(v));
+const advPnl = t => advNum(t?.pnl ?? t?.pnlUsd ?? t?.profitLoss);
+const advDate = t => {
+  const raw = t?.tradeDate || t?.date || t?.createdAt;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+const advClosed = t => advPnl(t) !== null && String(t?.result || '').toLowerCase() !== 'open' && t?.active !== false;
+
+function advancedStats(list) {
+  const closed = list.filter(advClosed), wins = closed.filter(t => advPnl(t) > 0), losses = closed.filter(t => advPnl(t) < 0);
+  const grossProfit = wins.reduce((s, t) => s + advPnl(t), 0);
+  const grossLoss = Math.abs(losses.reduce((s, t) => s + advPnl(t), 0));
+  let equity = 0, peak = 0, maxDrawdown = 0;
+  for (const t of closed.slice().sort((a, b) => (advDate(a)?.getTime() || 0) - (advDate(b)?.getTime() || 0))) {
+    equity += advPnl(t); peak = Math.max(peak, equity); maxDrawdown = Math.max(maxDrawdown, peak - equity);
+  }
+  const rr = closed.map(t => advNum(t.riskReward ?? t.rr)).filter(v => v !== null && v >= 0);
+  const winRate = wins.length + losses.length ? wins.length / (wins.length + losses.length) * 100 : null;
+  return {
+    totalTrades: closed.length, winningTrades: wins.length, losingTrades: losses.length,
+    breakEvenTrades: closed.length - wins.length - losses.length, netProfit: closed.reduce((s, t) => s + advPnl(t), 0),
+    grossProfit, grossLoss, winRate, profitFactor: grossLoss ? grossProfit / grossLoss : (grossProfit ? Infinity : null),
+    averageWin: wins.length ? grossProfit / wins.length : null, averageLoss: losses.length ? grossLoss / losses.length : null,
+    expectancy: closed.length ? closed.reduce((s, t) => s + advPnl(t), 0) / closed.length : null,
+    averageRiskReward: rr.length ? rr.reduce((s, v) => s + v, 0) / rr.length : null,
+    maxDrawdown, equityCurve: closed.slice().sort((a, b) => (advDate(a)?.getTime() || 0) - (advDate(b)?.getTime() || 0)).reduce((out, t) => {
+      const prev = out.length ? out[out.length - 1].value : 0; out.push({ date: advDate(t)?.toISOString() || null, value: prev + advPnl(t) }); return out;
+    }, [])
+  };
+}
+
+function advancedSnapshot() {
+  const accountId = String(arguments[0] || 'all');
+  const source = accountId === 'all' ? db.trades : db.trades.filter(t => String(t.accountId) === accountId);
+  const stats = advancedStats(source);
+  const byDay = {};
+  source.filter(advClosed).forEach(t => { const d = advDate(t); if (!d) return; const k = d.toISOString().slice(0, 10); byDay[k] = (byDay[k] || 0) + advPnl(t); });
+  const byMonth = {};
+  Object.entries(byDay).forEach(([k, v]) => { const m = k.slice(0, 7); byMonth[m] = (byMonth[m] || 0) + v; });
+  return { stats, daily: byDay, monthly: byMonth, accounts: db.accounts.map(a => ({ id: a.id, name: a.name, type: a.type, startingBalance: advNum(a.startingBalance) })), settings: db.reportSettings || {} };
+}
+
+function advancedCoach() {
+  const trades = db.trades.filter(advClosed), s = advancedStats(trades), notes = [];
+  const losses = trades.filter(t => advPnl(t) < 0);
+  const byDate = {};
+  trades.forEach(t => { const d = advDate(t); if (d) { const k = d.toISOString().slice(0, 10); (byDate[k] ||= []).push(t); } });
+  if (!trades.length) return { available: false, message: 'No closed journal trades are available for analysis.' };
+  if (s.winRate !== null && s.winRate < 40) notes.push('Win rate is below 40%; review entry confirmation and market selection.');
+  if (s.maxDrawdown > Math.max(1, Math.abs(s.netProfit))) notes.push('Maximum drawdown is significant relative to net profit; reduce risk per trade.');
+  if (Object.values(byDate).some(v => v.length >= 5)) notes.push('At least one day has five or more trades; check for overtrading.');
+  if (losses.length >= 3 && losses.slice(-3).every(t => advPnl(t) < 0)) notes.push('The latest three closed trades are losses; pause and review before taking another trade.');
+  const mistakes = trades.filter(t => t.followedRules === false || t.followed === false).length;
+  if (mistakes) notes.push(`${mistakes} trade(s) are marked as rule violations; compare them with your strategy checklist.`);
+  return { available: true, stats: s, recommendations: notes.length ? notes : ['No high-confidence warning was found in the available journal records. Continue recording complete trade notes.'] };
+}
+
+function riskCalculation(body) {
+  const balance = advNum(body.balance), riskPct = advNum(body.riskPercent), entry = advNum(body.entry), stop = advNum(body.stopLoss), target = advNum(body.takeProfit);
+  if ([balance, riskPct, entry, stop].some(v => v === null) || balance < 0 || riskPct < 0 || entry <= 0 || stop <= 0) return null;
+  const distance = Math.abs(entry - stop), riskAmount = balance * riskPct / 100;
+  const instrument = String(body.instrument || '').toUpperCase().replace(/[^A-Z]/g, '');
+  const contractSize = instrument === 'XAUUSD' ? 100 : (instrument.length === 6 ? 100000 : null);
+  const positionSize = contractSize ? riskAmount / (distance * contractSize) : null;
+  const potentialProfit = target && contractSize ? Math.abs(target - entry) * contractSize * (positionSize || 0) : null;
+  return { balance, riskPercent: riskPct, riskAmount, entry, stopLoss: stop, takeProfit: target, stopDistance: distance, contractSize, positionSize, potentialProfit, potentialLoss: riskAmount, riskReward: target ? Math.abs(target - entry) / distance : null, assumptions: contractSize ? `Contract size assumed: ${contractSize} units.` : 'Position size unavailable because contract specifications are not available for this instrument.' };
+}
+
 async function api(req, url) {
   const parts = url.pathname.replace(/^\/api\//, '').split('/').filter(Boolean);
   const resource = parts[0] || '';
@@ -1496,7 +1573,7 @@ async function api(req, url) {
     if (!user) return json({ error: 'login required' }, read ? 401 : 403);
     const state = accessState(user);
     if (state !== 'active') return gate(user, state);
-    if (!read && !(viaTg && !user.owner)) return json({ error: 'The website is read-only. Use the Telegram bot to change data.' }, 403);
+    if (!read && !(viaTg && !user.owner) && !(resource === 'advanced' && sub === 'risk')) return json({ error: 'The website is read-only. Use the Telegram bot to change data.' }, 403);
     if (!user.owner) enterScope(user.id);        // a member only ever sees their OWN accounts, models, trades and pairs
   }
 
@@ -1504,14 +1581,31 @@ async function api(req, url) {
   // answering from the OWNER's accounts / models / trades / pairs.
   if (!owner && !(user && user.owner) && !scope) return json({ error: 'Could not open your own data. Please try again.' }, 500);
 
-  const { body, files } = writeMethod ? await readRequest(req) : { body: {}, files: [] };
-
   // Paid subscribers and the owner's own website login can LOOK at the journal data.
   // The owner can hide ETB amounts, notes and screenshots from subscribers (not from the owner login)
   // with the "Subscriber privacy" switch in the control panel.
   const ownerWeb = !owner && !!user && !!user.owner;
   const hide = false;      // members only see their own data, so nothing needs hiding
   const shown = t => (hide ? { ...t, pnlEtb: null, notes: '', notesAm: '', notesEn: '', images: [] } : t);
+  const { body, files } = writeMethod ? await readRequest(req) : { body: {}, files: [] };
+
+  if (resource === 'advanced' && sub === 'summary' && method === 'GET') return json(advancedSnapshot(url.searchParams.get('accountId') || 'all'));
+  if (resource === 'advanced' && sub === 'coach' && method === 'GET') return json(advancedCoach());
+  if (resource === 'advanced' && sub === 'risk' && method === 'POST') return json(riskCalculation(body) || { error: 'Enter valid balance, risk percentage, entry and stop-loss values.' }, riskCalculation(body) ? 200 : 400);
+  if (resource === 'advanced' && sub === 'backtests' && method === 'GET') return json({ items: db.backtests || [] });
+  if (resource === 'advanced' && sub === 'backtests' && method === 'POST') {
+    const rec = { id: newId(), name: String(body.name || 'Untitled backtest').slice(0, 120), strategyId: String(body.strategyId || ''), trades: Array.isArray(body.trades) ? body.trades.slice(0, 1000) : [], createdAt: new Date().toISOString() };
+    rec.stats = advancedStats(rec.trades.map(t => ({ ...t, active: true })));
+    db.backtests = Array.isArray(db.backtests) ? db.backtests : []; db.backtests.unshift(rec); save(); return json(rec, 201);
+  }
+  if (resource === 'advanced' && sub === 'discipline' && method === 'GET') return json({ items: db.discipline || [] });
+  if (resource === 'advanced' && sub === 'discipline' && method === 'POST') {
+    const rec = { id: newId(), date: String(body.date || new Date().toISOString().slice(0, 10)), score: Math.max(0, Math.min(100, Number(body.score || 0))), emotionalState: String(body.emotionalState || '').slice(0, 80), notes: String(body.notes || '').slice(0, 2000), noTradeDay: !!body.noTradeDay, createdAt: new Date().toISOString() };
+    db.discipline = Array.isArray(db.discipline) ? db.discipline : []; db.discipline.unshift(rec); save(); return json(rec, 201);
+  }
+  if (resource === 'advanced' && sub === 'settings' && method === 'PUT') {
+    const loss = advNum(body.dailyLossLimit), target = advNum(body.dailyProfitTarget); db.reportSettings = { dailyLossLimit: loss, dailyProfitTarget: target }; save(); return json(db.reportSettings);
+  }
 
   /* ---- accounts ---- */
   if (resource === 'accounts') {
