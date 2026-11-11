@@ -1455,6 +1455,7 @@ async function api(req, url) {
   // opened the Mini App without pressing /start first: make the account now (free trial)
   if (!owner && who.viaTg && !user && who.tg) user = (await memberFromTelegram(who.tg, '')).user;
   const viaTg = who.viaTg;
+  const viaApp = String(req.headers.get('x-trade-edge-app') || '') === '1';
 
   if (resource === 'session') {
     // The standalone mobile app uses the same owner website login session.
@@ -1488,14 +1489,14 @@ async function api(req, url) {
     if (method === 'GET') { enterScope(user.id); return json(memberSnapshot()); }
     // In Telegram a member can add / edit THEIR OWN pairs here (accounts, models and trades use their own endpoints).
     // Only pair actions are allowed; everything else in adminAction stays owner-only.
-    if (method === 'POST' && viaTg) {
+    if (method === 'POST' && (viaTg || viaApp)) {
       const { body: abody } = await readRequest(req);
       const act = String(abody.action || '');
       if (!MEMBER_ADMIN_ACTIONS.includes(act)) return json({ error: 'This action is for the owner only.' }, 403);
       enterScope(user.id);
       return adminAction(req, abody);
     }
-    return json({ error: 'The website in Chrome is look-only. Open the control panel in Telegram to add or change data.' }, 403);
+    return json({ error: 'The website is look-only. Open Control Panel in the Trade Edge app or Telegram to add or change data.' }, 403);
   }
 
   if (resource === 'subscribe' && method === 'POST') {
@@ -1508,7 +1509,7 @@ async function api(req, url) {
     if (!user) return json({ error: 'login required' }, read ? 401 : 403);
     const state = accessState(user);
     if (state !== 'active') return gate(user, state);
-    if (!read && !(viaTg && !user.owner)) return json({ error: 'The website is read-only. Use the Telegram bot to change data.' }, 403);
+    if (!read && !(viaTg && !user.owner) && !viaApp) return json({ error: 'The website is read-only. Use the Trade Edge app or Telegram bot to change data.' }, 403);
     if (!user.owner) enterScope(user.id);        // a member only ever sees their OWN accounts, models, trades and pairs
   }
 

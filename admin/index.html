@@ -21,20 +21,23 @@
 <script>
 (function(){
   const tg = window.Telegram && window.Telegram.WebApp;
-  if(!tg || !tg.initData){
+  const inTradeEdgeApp = !!window.ReactNativeWebView || new URLSearchParams(location.search).get('from') === 'app';
+  if(!inTradeEdgeApp && (!tg || !tg.initData)){
     document.addEventListener('DOMContentLoaded',()=>{
-      document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f4f5;padding:24px;font-family:system-ui,sans-serif"><div style="max-width:420px;background:#fff;border:1px solid #e5e5e5;border-radius:18px;padding:24px;text-align:center"><h2 style="margin:0 0 8px">Telegram Control Panel</h2><p style="margin:0;color:#666;font-size:14px">ይህን ገጽ ከTelegram Bot ውስጥ ባለው Control Panel ቁልፍ ብቻ ክፈት።</p></div></div>';
+      document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f4f5;padding:24px;font-family:system-ui,sans-serif"><div style="max-width:420px;background:#fff;border:1px solid #e5e5e5;border-radius:18px;padding:24px;text-align:center"><h2 style="margin:0 0 8px">Trade Edge Control Panel</h2><p style="margin:0;color:#666;font-size:14px">Sign in to the Trade Edge website first, then open Control Panel from the app menu.</p></div></div>';
     });
     return;
   }
-  try{tg.ready();tg.expand(); if(tg.setHeaderColor) tg.setHeaderColor('#0b0f17'); if(tg.setBackgroundColor) tg.setBackgroundColor('#0b0f17');}catch(e){}
+  try{if(tg){tg.ready();tg.expand(); if(tg.setHeaderColor) tg.setHeaderColor('#0b0f17'); if(tg.setBackgroundColor) tg.setBackgroundColor('#0b0f17');}}catch(e){}
   const realFetch=window.fetch.bind(window);
   window.fetch=async function(input,init){
     const url=typeof input==='string'?input:((input&&input.url)||'');
     if(url.indexOf('/api/')===0 || url.indexOf('/uploads/')===0 || url.indexOf(location.origin+'/api/')===0 || url.indexOf(location.origin+'/uploads/')===0){
       init=Object.assign({},init);
       const h=new Headers(init.headers||{});
-      h.set('X-Tg-Init-Data',tg.initData);
+      h.set('credentials','include');
+      if(tg && tg.initData) h.set('X-Tg-Init-Data',tg.initData);
+      if(inTradeEdgeApp) h.set('X-Trade-Edge-App','1');
       init.headers=h;
     }
     return realFetch(input,init);
@@ -69,7 +72,7 @@
   }
   function confirmAction(msg,fn){ if(!confirm(msg)) return; Promise.resolve().then(fn).then(()=>{toast('✅ Done');load()}).catch(e=>toast('⚠️ '+e.message)); }
   function nav(){if(memberMode){const ml={overview:['⌂','Overview'],pairs:['⌁','Pairs & Analysis'],accounts:['▤','Accounts'],models:['✦','Models'],trades:['▥','Trades'],stats:['◔','Analysis by model']};return ['overview','pairs','accounts','models','trades','stats'].map(x=>'<button type="button" class="tea-tab '+(tab===x?'active':'')+'" data-tab="'+x+'"><span class="tea-tab-icon">'+ml[x][0]+'</span>'+ml[x][1]+'</button>').join('')}const labels={overview:['⌂','Overview'],access:['◎','Website Access'],users:['◉','Subscribers'],gifts:['🎁','Gifts'],payments:['▣','Payments'],plans:['◈','Plans'],pairs:['⌁','Pairs & Analysis'],accounts:['▤','Accounts'],models:['✦','Models'],trades:['▥','Trades']};return ['overview','access','users','gifts','payments','plans','pairs','accounts','models','trades'].map(x=>'<button type="button" class="tea-tab '+(tab===x?'active':'')+'" data-tab="'+x+'"><span class="tea-tab-icon">'+labels[x][0]+'</span>'+labels[x][1]+'</button>').join('')}
-  function render(){document.body.innerHTML='<div id="te-admin-root"><div class="tea-wrap"><header class="tea-top"><div class="tea-brand"><div class="tea-logo-wrap"><img src="/trading-edge-logo-192.png" alt="Trade Edge"></div><div><b>Trade Edge</b><span>'+(memberMode?'MY TRADING PANEL':'SUPER ADMIN CONTROL')+'</span></div></div><div class="tea-actions"><span class="tea-secure">'+(memberMode?'● MEMBER':'● OWNER')+'</span><button type="button" class="tea-btn ghost" id="refresh">↻ <span>Refresh</span></button><button type="button" class="tea-btn ghost" id="public">↗ <span>Website</span></button></div></header><section class="tea-hero"><div class="tea-hero-copy"><div class="tea-kicker">TELEGRAM MINI APP · PRIVATE</div><h1>'+(memberMode?'My Trading Panel':'Command Center')+'</h1><p>'+(memberMode?'Add and manage your pairs, accounts, models and trades here, and see your overview and analysis by model.':'Manage subscribers, payments, trading data, plans and weekly analysis from one secure place.')+'</p></div><div class="tea-hero-side"><div class="tea-status-dot"></div><div><strong>All systems</strong><span>Connected to live data</span></div></div></section><nav class="tea-tabs" aria-label="Admin sections">'+nav()+'</nav><main id="tea-content"></main></div></div>';const rt=document.getElementById('te-admin-root');rt.addEventListener('click',onRootClick);rt.addEventListener('input',onRootInput);document.getElementById('refresh').onclick=()=>load();document.getElementById('public').onclick=()=>{const u=(data&&data.siteUrl)||(location.origin+'/');try{tg.openLink(u)}catch(e){location.href=u}};load();}
+  function render(){document.body.innerHTML='<div id="te-admin-root"><div class="tea-wrap"><header class="tea-top"><div class="tea-brand"><div class="tea-logo-wrap"><img src="/trading-edge-logo-192.png" alt="Trade Edge"></div><div><b>Trade Edge</b><span>'+(memberMode?'MY TRADING PANEL':'SUPER ADMIN CONTROL')+'</span></div></div><div class="tea-actions"><span class="tea-secure">'+(memberMode?'● MEMBER':'● OWNER')+'</span><button type="button" class="tea-btn ghost" id="refresh">↻ <span>Refresh</span></button><button type="button" class="tea-btn ghost" id="public">↗ <span>Website</span></button></div></header><section class="tea-hero"><div class="tea-hero-copy"><div class="tea-kicker">TRADE EDGE APP · PRIVATE</div><h1>'+(memberMode?'My Trading Panel':'Command Center')+'</h1><p>'+(memberMode?'Add and manage your pairs, accounts, models and trades here, and see your overview and analysis by model.':'Manage subscribers, payments, trading data, plans and weekly analysis from one secure place.')+'</p></div><div class="tea-hero-side"><div class="tea-status-dot"></div><div><strong>All systems</strong><span>Connected to live data</span></div></div></section><nav class="tea-tabs" aria-label="Admin sections">'+nav()+'</nav><main id="tea-content"></main></div></div>';const rt=document.getElementById('te-admin-root');rt.addEventListener('click',onRootClick);rt.addEventListener('input',onRootInput);document.getElementById('refresh').onclick=()=>load();document.getElementById('public').onclick=()=>{const u=(data&&data.siteUrl)||(location.origin+'/');try{tg.openLink(u)}catch(e){location.href=u}};load();}
   const modelOf=t=>((data.models||[]).find(m=>m.id===t.modelId)||{}).name||t.strategy||'No model';
   function syncTabs(){
     document.querySelectorAll('.tea-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
